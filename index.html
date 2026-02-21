@@ -791,6 +791,78 @@
       max-height: 280px;
       margin: 0 auto 12px;
     }
+    /* STATS ROW (promedio + comparación) */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 2px;
+    }
+    .stat-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+    }
+    [data-theme="dark"] .stat-card {
+      background: rgba(28,28,30,0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .stat-card .stat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-size: 1.1rem;
+    }
+    .stat-card .stat-value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+    .stat-card .stat-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      letter-spacing: 0.2px;
+    }
+    .stat-card .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      margin-top: 6px;
+    }
+    .stat-badge.up {
+      background: rgba(248,113,113,0.15);
+      color: var(--gasto);
+    }
+    .stat-badge.down {
+      background: rgba(52,211,153,0.15);
+      color: var(--ingreso);
+    }
+    .stat-badge.neutral {
+      background: rgba(129,140,248,0.15);
+      color: var(--primary);
+    }
+    .stat-badge svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
     /* TOP 5 GASTOS */
     .top-gastos-list { list-style: none; padding: 0; margin: 0; }
     .top-gasto-item {
@@ -1346,6 +1418,19 @@
         </button>
         <button class="month-today-btn tap-scale" onclick="goToday('analisis')">Hoy</button>
       </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(248,113,113,0.15)">💸</div>
+          <div class="stat-value" id="statPromedio">$0</div>
+          <div class="stat-label">Promedio por día</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(129,140,248,0.15)">📊</div>
+          <div class="stat-value" id="statCompValue">—</div>
+          <div class="stat-label">vs mes anterior</div>
+          <div id="statCompBadge"></div>
+        </div>
+      </div>
       <div class="card">
         <div class="card-header">
           <div class="card-header-left">
@@ -1372,6 +1457,15 @@
           </div>
         </div>
         <div class="chart-container"><canvas id="chartBar"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-accent" style="background:var(--primary)"></div>
+            <div class="card-title">Gasto por día de la semana</div>
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="chartDay"></canvas></div>
       </div>
       <div class="card">
         <div class="card-header">
@@ -1557,6 +1651,7 @@
 
     let pieChart = null;
     let barChart = null;
+    let dayChart = null;
     let toastTimeout = null;
 
     // ============================================
@@ -2137,6 +2232,44 @@
       const catTotals = {};
       gastos.forEach(m => { const cat = m.categoria||'Otros'; catTotals[cat] = (catTotals[cat]||0) + toUYU(m.monto, m.moneda); });
 
+      // === Promedio diario ===
+      const totalGastosUYU = gastos.reduce((s, m) => s + toUYU(m.monto, m.moneda), 0);
+      const y = analisisMonth.getFullYear(), mo = analisisMonth.getMonth();
+      const now = new Date();
+      const isCurrentMonth = (y === now.getFullYear() && mo === now.getMonth());
+      const daysElapsed = isCurrentMonth ? now.getDate() : new Date(y, mo + 1, 0).getDate();
+      const promedioDia = daysElapsed > 0 ? totalGastosUYU / daysElapsed : 0;
+      document.getElementById('statPromedio').textContent = formatMoney(Math.round(promedioDia), 'UYU') + '/día';
+
+      // === Comparación mes anterior ===
+      const prevMonth = new Date(analisisMonth);
+      prevMonth.setMonth(prevMonth.getMonth() - 1);
+      const prevMovs = getMonthMovimientos(prevMonth);
+      const prevGastos = prevMovs.filter(m => m.tipo === 'gasto');
+      const prevTotal = prevGastos.reduce((s, m) => s + toUYU(m.monto, m.moneda), 0);
+      const compEl = document.getElementById('statCompValue');
+      const badgeEl = document.getElementById('statCompBadge');
+      if (prevTotal === 0 && totalGastosUYU === 0) {
+        compEl.textContent = '—';
+        badgeEl.innerHTML = '<span class="stat-badge neutral">Sin datos</span>';
+      } else if (prevTotal === 0) {
+        compEl.textContent = 'Nuevo';
+        badgeEl.innerHTML = '<span class="stat-badge neutral">Sin ref. anterior</span>';
+      } else {
+        const diff = ((totalGastosUYU - prevTotal) / prevTotal) * 100;
+        const absDiff = Math.abs(Math.round(diff));
+        if (diff > 0) {
+          compEl.textContent = '+' + absDiff + '%';
+          badgeEl.innerHTML = '<span class="stat-badge up"><svg viewBox="0 0 24 24"><polyline points="17,7 17,17 7,17"/><line x1="17" y1="17" x2="7" y2="7"/></svg>Gastaste más</span>';
+        } else if (diff < 0) {
+          compEl.textContent = '-' + absDiff + '%';
+          badgeEl.innerHTML = '<span class="stat-badge down"><svg viewBox="0 0 24 24"><polyline points="7,17 7,7 17,7"/><line x1="7" y1="7" x2="17" y2="17"/></svg>Gastaste menos</span>';
+        } else {
+          compEl.textContent = '0%';
+          badgeEl.innerHTML = '<span class="stat-badge neutral">Igual que antes</span>';
+        }
+      }
+
       const labels = Object.keys(catTotals);
       const values = Object.values(catTotals);
       const colors = labels.map(l => getCatColor(l));
@@ -2223,6 +2356,55 @@
           plugins: {
             legend: { labels: { font: { family: 'Inter', size: 13, weight: '500' }, color: secondaryColor, usePointStyle: true, pointStyle: 'circle', padding: 16 } },
             tooltip: { backgroundColor: isDark ? '#2c2c2e' : '#1c1c1e', titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' }, cornerRadius: 10, padding: 12 }
+          }
+        }
+      });
+
+      // Day-of-week chart
+      const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+      const dayTotals = [0,0,0,0,0,0,0];
+      gastos.forEach(m => {
+        const f = cleanDateStr(m.fecha);
+        if (!f) return;
+        const parts = f.split('-');
+        const dt = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+        dayTotals[dt.getDay()] += toUYU(m.monto, m.moneda);
+      });
+      const maxDay = Math.max(...dayTotals);
+      const dayColors = dayTotals.map(v => {
+        if (maxDay === 0) return isDark ? 'rgba(129,140,248,0.3)' : 'rgba(99,102,241,0.3)';
+        const intensity = 0.25 + (v / maxDay) * 0.75;
+        return isDark ? 'rgba(129,140,248,' + intensity + ')' : 'rgba(99,102,241,' + intensity + ')';
+      });
+
+      if (dayChart) dayChart.destroy();
+      const dayCtx = document.getElementById('chartDay').getContext('2d');
+      dayChart = new Chart(dayCtx, {
+        type: 'bar',
+        data: {
+          labels: DIAS,
+          datasets: [{
+            data: dayTotals,
+            backgroundColor: dayColors,
+            borderWidth: 0,
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          barPercentage: 0.65,
+          categoryPercentage: 0.8,
+          scales: {
+            y: { beginAtZero: true, ticks: { font: { family: 'Inter', size: 11, weight: '500' }, color: secondaryColor }, grid: { color: gridColor }, border: { display: false } },
+            x: { ticks: { font: { family: 'Inter', size: 12, weight: '700' }, color: secondaryColor }, grid: { display: false }, border: { display: false } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: isDark ? '#2c2c2e' : '#1c1c1e', titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' }, cornerRadius: 10, padding: 12,
+              callbacks: { label: function(ctx) { return formatMoney(ctx.raw, 'UYU'); } }
+            }
           }
         }
       });
