@@ -1,8 +1,8 @@
 const CACHE_NAME = 'gastos-v1';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  '/tracker-gastos/',
+  '/tracker-gastos/index.html',
+  '/tracker-gastos/manifest.json',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js',
   'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
 ];
