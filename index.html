@@ -791,17 +791,22 @@
       max-height: 280px;
       margin: 0 auto 12px;
     }
-    /* STATS ROW (promedio + comparación) */
+    /* ============================================ */
+    /* ANALYTICS COMPONENTS                        */
+    /* ============================================ */
+
+    /* Stats row — 2-col grid for compact KPIs */
     .stats-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-bottom: 2px;
+      margin-bottom: 12px;
     }
     .stat-card {
       background: var(--card);
-      border-radius: 16px;
-      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 12px;
       text-align: center;
     }
     [data-theme="dark"] .stat-card {
@@ -810,129 +815,158 @@
       -webkit-backdrop-filter: blur(20px);
     }
     .stat-card .stat-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 10px;
-      font-size: 1.1rem;
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 8px; font-size: 1.1rem;
     }
     .stat-card .stat-value {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -0.5px;
-      line-height: 1.2;
+      font-size: 1.1rem; font-weight: 800; color: var(--text);
+      letter-spacing: -0.5px; line-height: 1.2;
     }
     .stat-card .stat-label {
-      font-size: 0.68rem;
-      font-weight: 600;
-      color: var(--text-secondary);
+      font-size: 0.68rem; font-weight: 600; color: var(--text-secondary);
+      margin-top: 3px; letter-spacing: 0.2px;
+    }
+    .stat-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 0.7rem; font-weight: 700; padding: 3px 8px;
+      border-radius: 20px; margin-top: 5px;
+    }
+    .stat-badge.up { background: rgba(248,113,113,0.15); color: var(--gasto); }
+    .stat-badge.down { background: rgba(52,211,153,0.15); color: var(--ingreso); }
+    .stat-badge.neutral { background: rgba(129,140,248,0.15); color: var(--primary); }
+    .stat-badge svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2.5; fill: none; }
+
+    /* Cards grid — pair small charts side by side */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 2px;
+    }
+    .cards-grid .card { margin-bottom: 0; }
+    .cards-grid .chart-container { max-height: 200px; }
+
+    /* Ratio gauge */
+    .ratio-gauge { padding: 8px 0; text-align: center; }
+    .ratio-bar-track {
+      height: 12px; border-radius: 6px; background: var(--divider);
+      overflow: hidden; margin: 0 4px;
+    }
+    [data-theme="dark"] .ratio-bar-track { background: rgba(255,255,255,0.06); }
+    .ratio-bar-fill {
+      height: 100%; border-radius: 6px;
+      transition: width 0.8s var(--ease-out);
+    }
+    .ratio-bar-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
+    .ratio-bar-fill.yellow { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .ratio-bar-fill.red { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .ratio-value {
+      font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;
+      margin-top: 8px; line-height: 1;
+    }
+    .ratio-label {
+      font-size: 0.68rem; font-weight: 600; color: var(--text-secondary);
       margin-top: 4px;
-      letter-spacing: 0.2px;
     }
-    .stat-card .stat-badge {
-      display: inline-flex;
-      align-items: center;
+
+    /* Category growth alert */
+    .cat-growth-list { list-style: none; padding: 0; margin: 0; }
+    .cat-growth-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--divider);
+    }
+    .cat-growth-item:last-child { border-bottom: none; }
+    .cat-growth-emoji { font-size: 1.2rem; flex-shrink: 0; }
+    .cat-growth-info { flex: 1; min-width: 0; }
+    .cat-growth-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .cat-growth-detail { font-size: 0.7rem; color: var(--text-secondary); margin-top: 1px; }
+    .cat-growth-pct { font-size: 0.82rem; font-weight: 800; flex-shrink: 0; }
+    .cat-growth-pct.up { color: var(--gasto); }
+    .cat-growth-pct.down { color: var(--ingreso); }
+    .cat-growth-pct.new-cat { color: var(--primary); }
+    .cat-growth-empty { text-align: center; color: var(--text-secondary); padding: 20px 0; font-size: 0.82rem; }
+
+    /* Heatmap calendar */
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
       gap: 3px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 20px;
-      margin-top: 6px;
     }
-    .stat-badge.up {
-      background: rgba(248,113,113,0.15);
-      color: var(--gasto);
+    .heatmap-header {
+      font-size: 0.62rem; font-weight: 700; color: var(--text-tertiary);
+      text-align: center; padding: 2px 0 6px;
+      letter-spacing: 0.3px;
     }
-    .stat-badge.down {
-      background: rgba(52,211,153,0.15);
-      color: var(--ingreso);
+    .heatmap-cell {
+      aspect-ratio: 1; border-radius: 4px;
+      background: var(--divider);
+      position: relative;
     }
-    .stat-badge.neutral {
-      background: rgba(129,140,248,0.15);
-      color: var(--primary);
+    [data-theme="dark"] .heatmap-cell { background: rgba(255,255,255,0.04); }
+    .heatmap-cell.empty { background: transparent; }
+    .heatmap-cell.lvl1 { background: rgba(99,102,241,0.15); }
+    .heatmap-cell.lvl2 { background: rgba(99,102,241,0.3); }
+    .heatmap-cell.lvl3 { background: rgba(99,102,241,0.5); }
+    .heatmap-cell.lvl4 { background: rgba(99,102,241,0.75); }
+    .heatmap-cell.today { box-shadow: 0 0 0 2px var(--primary); }
+    [data-theme="dark"] .heatmap-cell.lvl1 { background: rgba(129,140,248,0.15); }
+    [data-theme="dark"] .heatmap-cell.lvl2 { background: rgba(129,140,248,0.3); }
+    [data-theme="dark"] .heatmap-cell.lvl3 { background: rgba(129,140,248,0.5); }
+    [data-theme="dark"] .heatmap-cell.lvl4 { background: rgba(129,140,248,0.75); }
+    .heatmap-legend {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 4px; margin-top: 8px;
+      font-size: 0.62rem; color: var(--text-tertiary); font-weight: 600;
     }
-    .stat-badge svg {
-      width: 12px;
-      height: 12px;
-      stroke: currentColor;
-      stroke-width: 2.5;
-      fill: none;
+    .heatmap-legend-cell {
+      width: 12px; height: 12px; border-radius: 3px;
     }
+
+    /* USD conversion card */
+    .usd-card-content { text-align: center; padding: 4px 0; }
+    .usd-big { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
+    .usd-sub { font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; font-weight: 500; }
+    .usd-rate { font-size: 0.68rem; color: var(--text-tertiary); margin-top: 6px; font-weight: 600; }
 
     /* TOP 5 GASTOS */
     .top-gastos-list { list-style: none; padding: 0; margin: 0; }
     .top-gasto-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--divider);
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0; border-bottom: 1px solid var(--divider);
     }
     .top-gasto-item:last-child { border-bottom: none; }
     .top-gasto-rank {
-      width: 26px;
-      height: 26px;
-      border-radius: 8px;
-      background: var(--primary-gradient);
-      color: white;
-      font-size: 0.72rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      width: 24px; height: 24px; border-radius: 7px;
+      background: var(--primary-gradient); color: white;
+      font-size: 0.7rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .top-gasto-emoji {
-      font-size: 1.3rem;
-      flex-shrink: 0;
-    }
-    .top-gasto-info {
-      flex: 1;
-      min-width: 0;
-    }
+    .top-gasto-emoji { font-size: 1.2rem; flex-shrink: 0; }
+    .top-gasto-info { flex: 1; min-width: 0; }
     .top-gasto-desc {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 0.82rem; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .top-gasto-meta {
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-    .top-gasto-amount {
-      font-size: 0.88rem;
-      font-weight: 800;
-      color: var(--gasto);
-      flex-shrink: 0;
-    }
-    .top-gasto-empty {
-      text-align: center;
-      color: var(--text-secondary);
-      padding: 24px 0;
-      font-size: 0.82rem;
+    .top-gasto-meta { font-size: 0.68rem; color: var(--text-secondary); margin-top: 1px; }
+    .top-gasto-amount { font-size: 0.85rem; font-weight: 800; color: var(--gasto); flex-shrink: 0; }
+    .top-gasto-empty, .analytics-empty {
+      text-align: center; color: var(--text-secondary); padding: 20px 0; font-size: 0.82rem;
     }
 
+    /* Summary table */
     .summary-table { width: 100%; border-collapse: collapse; }
     .summary-table th, .summary-table td {
-      padding: 12px 8px;
-      text-align: left;
-      font-size: 0.82rem;
+      padding: 12px 8px; font-size: 0.82rem;
       border-bottom: 1px solid var(--divider);
     }
     .summary-table th {
-      font-weight: 600;
-      color: var(--text-secondary);
-      font-size: 0.72rem;
-      letter-spacing: 0.3px;
+      font-weight: 600; color: var(--text-secondary);
+      font-size: 0.72rem; letter-spacing: 0.3px;
     }
+    .summary-table th:first-child { text-align: left; }
+    .summary-table th:last-child { text-align: right; }
+    .summary-table td:first-child { text-align: left; }
     .summary-table td:last-child { text-align: right; font-weight: 700; }
     .summary-table tr:last-child td { border-bottom: none; }
 
@@ -1418,6 +1452,8 @@
         </button>
         <button class="month-today-btn tap-scale" onclick="goToday('analisis')">Hoy</button>
       </div>
+
+      <!-- Row 1: KPIs -->
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-icon" style="background:rgba(248,113,113,0.15)">💸</div>
@@ -1431,24 +1467,78 @@
           <div id="statCompBadge"></div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-header-left">
-            <div class="card-accent" style="background:var(--warning)"></div>
-            <div class="card-title">Gastos por categoría</div>
+
+      <!-- Row 2: Donut + Ratio gauge (side by side) -->
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-accent" style="background:var(--warning)"></div>
+              <div class="card-title">Por categoría</div>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartPie"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-accent" style="background:var(--ingreso)"></div>
+              <div class="card-title">Ratio I/G</div>
+            </div>
+          </div>
+          <div class="ratio-gauge" id="ratioGauge">
+            <div class="ratio-value" id="ratioValue">—</div>
+            <div class="ratio-label" id="ratioLabel">de ingresos gastado</div>
+            <div class="ratio-bar-track"><div class="ratio-bar-fill green" id="ratioFill" style="width:0%"></div></div>
           </div>
         </div>
-        <div class="chart-container"><canvas id="chartPie"></canvas></div>
       </div>
+
+      <!-- Row 3: Trend line (full width) -->
       <div class="card">
         <div class="card-header">
           <div class="card-header-left">
             <div class="card-accent" style="background:var(--gasto)"></div>
+            <div class="card-title">Gasto acumulado del mes</div>
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="chartTrend"></canvas></div>
+      </div>
+
+      <!-- Row 4: Top 5 (full width) -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-accent" style="background:var(--warning)"></div>
             <div class="card-title">Top 5 gastos del mes</div>
           </div>
         </div>
         <ul class="top-gastos-list" id="topGastosList"></ul>
       </div>
+
+      <!-- Row 5: Day chart + Heatmap (side by side) -->
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-accent" style="background:var(--primary)"></div>
+              <div class="card-title">Por día</div>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartDay"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-accent" style="background:var(--primary)"></div>
+              <div class="card-title">Heatmap</div>
+            </div>
+          </div>
+          <div id="heatmapContainer"></div>
+        </div>
+      </div>
+
+      <!-- Row 6: 6 months bar chart (full width) -->
       <div class="card">
         <div class="card-header">
           <div class="card-header-left">
@@ -1458,15 +1548,36 @@
         </div>
         <div class="chart-container"><canvas id="chartBar"></canvas></div>
       </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-header-left">
-            <div class="card-accent" style="background:var(--primary)"></div>
-            <div class="card-title">Gasto por día de la semana</div>
+
+      <!-- Row 7: Category growth + USD (side by side) -->
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-accent" style="background:var(--gasto)"></div>
+              <div class="card-title">Categorías 🔥</div>
+            </div>
+          </div>
+          <ul class="cat-growth-list" id="catGrowthList"></ul>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-accent" style="background:var(--success)"></div>
+              <div class="card-title">En dólares</div>
+            </div>
+          </div>
+          <div class="usd-card-content" id="usdCard">
+            <div class="usd-big" id="usdGastos">US$ 0</div>
+            <div class="usd-sub">Gastos del mes</div>
+            <div class="usd-big" id="usdIngresos" style="margin-top:12px;color:var(--ingreso)">US$ 0</div>
+            <div class="usd-sub">Ingresos del mes</div>
+            <div class="usd-rate" id="usdRate">TC: $42,5</div>
           </div>
         </div>
-        <div class="chart-container"><canvas id="chartDay"></canvas></div>
       </div>
+
+      <!-- Row 8: Detail table (full width) -->
       <div class="card">
         <div class="card-header">
           <div class="card-header-left">
@@ -1652,6 +1763,7 @@
     let pieChart = null;
     let barChart = null;
     let dayChart = null;
+    let trendChart = null;
     let toastTimeout = null;
 
     // ============================================
@@ -2226,27 +2338,36 @@
       const secondaryColor = isDark ? '#98989d' : '#8e8e93';
       const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
       const cardBg = isDark ? '#1c1c1e' : '#ffffff';
+      const tooltipBg = isDark ? '#2c2c2e' : '#1c1c1e';
       const movs = getMonthMovimientos(analisisMonth);
-
-      const gastos = movs.filter(m => m.tipo === 'gasto');
-      const catTotals = {};
-      gastos.forEach(m => { const cat = m.categoria||'Otros'; catTotals[cat] = (catTotals[cat]||0) + toUYU(m.monto, m.moneda); });
-
-      // === Promedio diario ===
-      const totalGastosUYU = gastos.reduce((s, m) => s + toUYU(m.monto, m.moneda), 0);
       const y = analisisMonth.getFullYear(), mo = analisisMonth.getMonth();
       const now = new Date();
       const isCurrentMonth = (y === now.getFullYear() && mo === now.getMonth());
-      const daysElapsed = isCurrentMonth ? now.getDate() : new Date(y, mo + 1, 0).getDate();
-      const promedioDia = daysElapsed > 0 ? totalGastosUYU / daysElapsed : 0;
-      document.getElementById('statPromedio').textContent = formatMoney(Math.round(promedioDia), 'UYU') + '/día';
+      const daysInMonth = new Date(y, mo + 1, 0).getDate();
+      const daysElapsed = isCurrentMonth ? now.getDate() : daysInMonth;
 
-      // === Comparación mes anterior ===
+      const gastos = movs.filter(m => m.tipo === 'gasto');
+      const ingresos = movs.filter(m => m.tipo === 'ingreso');
+      const totalGastosUYU = gastos.reduce((s, m) => s + toUYU(m.monto, m.moneda), 0);
+      const totalIngresosUYU = ingresos.reduce((s, m) => s + toUYU(m.monto, m.moneda), 0);
+
+      const catTotals = {};
+      gastos.forEach(m => { const cat = m.categoria||'Otros'; catTotals[cat] = (catTotals[cat]||0) + toUYU(m.monto, m.moneda); });
+
+      // Previous month data (reused by comparison + cat growth)
       const prevMonth = new Date(analisisMonth);
       prevMonth.setMonth(prevMonth.getMonth() - 1);
       const prevMovs = getMonthMovimientos(prevMonth);
       const prevGastos = prevMovs.filter(m => m.tipo === 'gasto');
       const prevTotal = prevGastos.reduce((s, m) => s + toUYU(m.monto, m.moneda), 0);
+      const prevCatTotals = {};
+      prevGastos.forEach(m => { const cat = m.categoria||'Otros'; prevCatTotals[cat] = (prevCatTotals[cat]||0) + toUYU(m.monto, m.moneda); });
+
+      // ─── 1. Promedio diario ───
+      const promedioDia = daysElapsed > 0 ? totalGastosUYU / daysElapsed : 0;
+      document.getElementById('statPromedio').textContent = formatMoney(Math.round(promedioDia), 'UYU') + '/día';
+
+      // ─── 2. Comparación mes anterior ───
       const compEl = document.getElementById('statCompValue');
       const badgeEl = document.getElementById('statCompBadge');
       if (prevTotal === 0 && totalGastosUYU === 0) {
@@ -2254,22 +2375,23 @@
         badgeEl.innerHTML = '<span class="stat-badge neutral">Sin datos</span>';
       } else if (prevTotal === 0) {
         compEl.textContent = 'Nuevo';
-        badgeEl.innerHTML = '<span class="stat-badge neutral">Sin ref. anterior</span>';
+        badgeEl.innerHTML = '<span class="stat-badge neutral">Sin ref.</span>';
       } else {
         const diff = ((totalGastosUYU - prevTotal) / prevTotal) * 100;
         const absDiff = Math.abs(Math.round(diff));
         if (diff > 0) {
           compEl.textContent = '+' + absDiff + '%';
-          badgeEl.innerHTML = '<span class="stat-badge up"><svg viewBox="0 0 24 24"><polyline points="17,7 17,17 7,17"/><line x1="17" y1="17" x2="7" y2="7"/></svg>Gastaste más</span>';
+          badgeEl.innerHTML = '<span class="stat-badge up"><svg viewBox="0 0 24 24"><polyline points="17,7 17,17 7,17"/><line x1="17" y1="17" x2="7" y2="7"/></svg>Más</span>';
         } else if (diff < 0) {
           compEl.textContent = '-' + absDiff + '%';
-          badgeEl.innerHTML = '<span class="stat-badge down"><svg viewBox="0 0 24 24"><polyline points="7,17 7,7 17,7"/><line x1="7" y1="7" x2="17" y2="17"/></svg>Gastaste menos</span>';
+          badgeEl.innerHTML = '<span class="stat-badge down"><svg viewBox="0 0 24 24"><polyline points="7,17 7,7 17,7"/><line x1="7" y1="7" x2="17" y2="17"/></svg>Menos</span>';
         } else {
           compEl.textContent = '0%';
-          badgeEl.innerHTML = '<span class="stat-badge neutral">Igual que antes</span>';
+          badgeEl.innerHTML = '<span class="stat-badge neutral">Igual</span>';
         }
       }
 
+      // ─── 3. Donut chart ───
       const labels = Object.keys(catTotals);
       const values = Object.values(catTotals);
       const colors = labels.map(l => getCatColor(l));
@@ -2279,14 +2401,12 @@
       if (labels.length > 0) {
         pieChart = new Chart(pieCtx, {
           type: 'doughnut',
-          data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 3, borderColor: cardBg, hoverBorderWidth: 0 }] },
+          data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: cardBg, hoverBorderWidth: 0 }] },
           options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            cutout: '65%',
+            responsive: true, maintainAspectRatio: true, cutout: '62%',
             plugins: {
-              legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 13, weight: '500' }, color: secondaryColor, padding: 16, usePointStyle: true, pointStyle: 'circle' } },
-              tooltip: { backgroundColor: isDark ? '#2c2c2e' : '#1c1c1e', titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' }, cornerRadius: 10, padding: 12 }
+              legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 10, weight: '600' }, color: secondaryColor, padding: 8, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 } },
+              tooltip: { backgroundColor: tooltipBg, titleFont: { family: 'Inter', weight: '600', size: 11 }, bodyFont: { family: 'Inter', size: 11 }, cornerRadius: 8, padding: 8 }
             }
           }
         });
@@ -2294,11 +2414,87 @@
         pieChart = new Chart(pieCtx, {
           type: 'doughnut',
           data: { labels: ['Sin datos'], datasets: [{ data: [1], backgroundColor: [gridColor], borderWidth: 0 }] },
-          options: { responsive: true, cutout: '65%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+          options: { responsive: true, cutout: '62%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
         });
       }
 
-      // Top 5 gastos
+      // ─── 4. Ratio Ingresos/Gastos ───
+      const ratioEl = document.getElementById('ratioValue');
+      const ratioFill = document.getElementById('ratioFill');
+      const ratioLabel = document.getElementById('ratioLabel');
+      if (totalIngresosUYU === 0 && totalGastosUYU === 0) {
+        ratioEl.textContent = '—';
+        ratioEl.style.color = 'var(--text-secondary)';
+        ratioLabel.textContent = 'Sin movimientos';
+        ratioFill.style.width = '0%';
+        ratioFill.className = 'ratio-bar-fill green';
+      } else if (totalIngresosUYU === 0) {
+        ratioEl.textContent = '∞';
+        ratioEl.style.color = 'var(--gasto)';
+        ratioLabel.textContent = 'Sin ingresos';
+        ratioFill.style.width = '100%';
+        ratioFill.className = 'ratio-bar-fill red';
+      } else {
+        const ratio = (totalGastosUYU / totalIngresosUYU) * 100;
+        ratioEl.textContent = Math.round(ratio) + '%';
+        ratioLabel.textContent = 'de ingresos gastado';
+        ratioFill.style.width = Math.min(ratio, 100) + '%';
+        if (ratio <= 70) { ratioEl.style.color = 'var(--ingreso)'; ratioFill.className = 'ratio-bar-fill green'; }
+        else if (ratio <= 100) { ratioEl.style.color = 'var(--warning)'; ratioFill.className = 'ratio-bar-fill yellow'; }
+        else { ratioEl.style.color = 'var(--gasto)'; ratioFill.className = 'ratio-bar-fill red'; }
+      }
+
+      // ─── 5. Trend line (gastos acumulados día a día) ───
+      const dailyTotals = {};
+      gastos.forEach(m => {
+        const f = cleanDateStr(m.fecha);
+        if (!f) return;
+        const day = parseInt(f.split('-')[2]);
+        dailyTotals[day] = (dailyTotals[day]||0) + toUYU(m.monto, m.moneda);
+      });
+      const trendLabels = [], trendData = [];
+      let cumulative = 0;
+      const maxDayTrend = isCurrentMonth ? daysElapsed : daysInMonth;
+      for (let d = 1; d <= maxDayTrend; d++) {
+        cumulative += (dailyTotals[d] || 0);
+        trendLabels.push(d);
+        trendData.push(cumulative);
+      }
+
+      if (trendChart) trendChart.destroy();
+      const trendCtx = document.getElementById('chartTrend').getContext('2d');
+      trendChart = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: trendLabels,
+          datasets: [{
+            label: 'Gasto acumulado',
+            data: trendData,
+            borderColor: isDark ? '#f87171' : '#ef4444',
+            backgroundColor: isDark ? 'rgba(248,113,113,0.08)' : 'rgba(239,68,68,0.08)',
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.3,
+            pointRadius: 0,
+            pointHitRadius: 10
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          scales: {
+            y: { beginAtZero: true, ticks: { font: { family: 'Inter', size: 11, weight: '500' }, color: secondaryColor, callback: function(v) { return v >= 1000 ? Math.round(v/1000)+'k' : v; } }, grid: { color: gridColor }, border: { display: false } },
+            x: { ticks: { font: { family: 'Inter', size: 10, weight: '600' }, color: secondaryColor, maxTicksLimit: 8 }, grid: { display: false }, border: { display: false } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: tooltipBg, titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' }, cornerRadius: 10, padding: 12,
+              callbacks: { label: function(ctx) { return formatMoney(ctx.raw, 'UYU'); } }
+            }
+          }
+        }
+      });
+
+      // ─── 6. Top 5 gastos ───
       const topList = document.getElementById('topGastosList');
       if (gastos.length === 0) {
         topList.innerHTML = '<li class="top-gasto-empty">Sin gastos este mes</li>';
@@ -2322,7 +2518,76 @@
         }).join('');
       }
 
-      // Bar chart
+      // ─── 7. Day-of-week chart ───
+      const DIAS = ['D','L','M','X','J','V','S'];
+      const dayTotals = [0,0,0,0,0,0,0];
+      gastos.forEach(m => {
+        const f = cleanDateStr(m.fecha);
+        if (!f) return;
+        const parts = f.split('-');
+        const dt = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+        dayTotals[dt.getDay()] += toUYU(m.monto, m.moneda);
+      });
+      const maxDayVal = Math.max(...dayTotals);
+      const dayColors = dayTotals.map(v => {
+        if (maxDayVal === 0) return isDark ? 'rgba(129,140,248,0.25)' : 'rgba(99,102,241,0.25)';
+        const intensity = 0.2 + (v / maxDayVal) * 0.8;
+        return isDark ? 'rgba(129,140,248,' + intensity + ')' : 'rgba(99,102,241,' + intensity + ')';
+      });
+
+      if (dayChart) dayChart.destroy();
+      const dayCtx = document.getElementById('chartDay').getContext('2d');
+      dayChart = new Chart(dayCtx, {
+        type: 'bar',
+        data: { labels: DIAS, datasets: [{ data: dayTotals, backgroundColor: dayColors, borderWidth: 0, borderRadius: 4, borderSkipped: false }] },
+        options: {
+          responsive: true, maintainAspectRatio: true, barPercentage: 0.7, categoryPercentage: 0.85,
+          scales: {
+            y: { display: false, beginAtZero: true },
+            x: { ticks: { font: { family: 'Inter', size: 10, weight: '700' }, color: secondaryColor }, grid: { display: false }, border: { display: false } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: tooltipBg, titleFont: { family: 'Inter', weight: '600', size: 11 }, bodyFont: { family: 'Inter', size: 11 }, cornerRadius: 8, padding: 8,
+              callbacks: { label: function(ctx) { return formatMoney(ctx.raw, 'UYU'); } }
+            }
+          }
+        }
+      });
+
+      // ─── 8. Heatmap calendar ───
+      const heatContainer = document.getElementById('heatmapContainer');
+      const firstDay = new Date(y, mo, 1).getDay(); // 0=dom
+      const dailyGastos = {};
+      gastos.forEach(m => {
+        const f = cleanDateStr(m.fecha);
+        if (!f) return;
+        const day = parseInt(f.split('-')[2]);
+        dailyGastos[day] = (dailyGastos[day]||0) + toUYU(m.monto, m.moneda);
+      });
+      const maxHeat = Math.max(...Object.values(dailyGastos), 1);
+      const heatDays = ['D','L','M','X','J','V','S'];
+      let heatHTML = '<div class="heatmap-grid">';
+      heatDays.forEach(d => { heatHTML += '<div class="heatmap-header">' + d + '</div>'; });
+      for (let i = 0; i < firstDay; i++) heatHTML += '<div class="heatmap-cell empty"></div>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const val = dailyGastos[d] || 0;
+        let lvl = '';
+        if (val > 0) {
+          const pct = val / maxHeat;
+          if (pct <= 0.25) lvl = 'lvl1';
+          else if (pct <= 0.5) lvl = 'lvl2';
+          else if (pct <= 0.75) lvl = 'lvl3';
+          else lvl = 'lvl4';
+        }
+        const isToday = isCurrentMonth && d === now.getDate() ? ' today' : '';
+        heatHTML += '<div class="heatmap-cell ' + lvl + isToday + '" title="' + d + '/' + (mo+1) + ': ' + formatMoney(val,'UYU') + '"></div>';
+      }
+      heatHTML += '</div>';
+      heatHTML += '<div class="heatmap-legend">Menos <div class="heatmap-legend-cell" style="background:' + (isDark?'rgba(129,140,248,0.15)':'rgba(99,102,241,0.15)') + '"></div><div class="heatmap-legend-cell" style="background:' + (isDark?'rgba(129,140,248,0.35)':'rgba(99,102,241,0.35)') + '"></div><div class="heatmap-legend-cell" style="background:' + (isDark?'rgba(129,140,248,0.55)':'rgba(99,102,241,0.55)') + '"></div><div class="heatmap-legend-cell" style="background:' + (isDark?'rgba(129,140,248,0.8)':'rgba(99,102,241,0.8)') + '"></div> Más</div>';
+      heatContainer.innerHTML = heatHTML;
+
+      // ─── 9. Bar chart 6 meses ───
       const barLabels = [], barGastos = [], barIngresos = [];
       for (let i = 5; i >= 0; i--) {
         const d = new Date(analisisMonth); d.setMonth(d.getMonth()-i);
@@ -2340,76 +2605,71 @@
         data: {
           labels: barLabels,
           datasets: [
-            { label: 'Gastos', data: barGastos, backgroundColor: isDark ? 'rgba(248,113,113,0.6)' : 'rgba(239,68,68,0.6)', borderColor: isDark ? '#f87171' : '#ef4444', borderWidth: 0, borderRadius: 6, borderSkipped: false },
-            { label: 'Ingresos', data: barIngresos, backgroundColor: isDark ? 'rgba(52,211,153,0.6)' : 'rgba(16,185,129,0.6)', borderColor: isDark ? '#34d399' : '#10b981', borderWidth: 0, borderRadius: 6, borderSkipped: false }
+            { label: 'Gastos', data: barGastos, backgroundColor: isDark ? 'rgba(248,113,113,0.6)' : 'rgba(239,68,68,0.6)', borderWidth: 0, borderRadius: 6, borderSkipped: false },
+            { label: 'Ingresos', data: barIngresos, backgroundColor: isDark ? 'rgba(52,211,153,0.6)' : 'rgba(16,185,129,0.6)', borderWidth: 0, borderRadius: 6, borderSkipped: false }
           ]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          barPercentage: 0.7,
-          categoryPercentage: 0.7,
+          responsive: true, maintainAspectRatio: true, barPercentage: 0.7, categoryPercentage: 0.7,
           scales: {
             y: { beginAtZero: true, ticks: { font: { family: 'Inter', size: 11, weight: '500' }, color: secondaryColor }, grid: { color: gridColor }, border: { display: false } },
             x: { ticks: { font: { family: 'Inter', size: 12, weight: '600' }, color: secondaryColor }, grid: { display: false }, border: { display: false } }
           },
           plugins: {
-            legend: { labels: { font: { family: 'Inter', size: 13, weight: '500' }, color: secondaryColor, usePointStyle: true, pointStyle: 'circle', padding: 16 } },
-            tooltip: { backgroundColor: isDark ? '#2c2c2e' : '#1c1c1e', titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' }, cornerRadius: 10, padding: 12 }
+            legend: { labels: { font: { family: 'Inter', size: 12, weight: '500' }, color: secondaryColor, usePointStyle: true, pointStyle: 'circle', padding: 14 } },
+            tooltip: { backgroundColor: tooltipBg, titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' }, cornerRadius: 10, padding: 12 }
           }
         }
       });
 
-      // Day-of-week chart
-      const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-      const dayTotals = [0,0,0,0,0,0,0];
-      gastos.forEach(m => {
-        const f = cleanDateStr(m.fecha);
-        if (!f) return;
-        const parts = f.split('-');
-        const dt = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
-        dayTotals[dt.getDay()] += toUYU(m.monto, m.moneda);
-      });
-      const maxDay = Math.max(...dayTotals);
-      const dayColors = dayTotals.map(v => {
-        if (maxDay === 0) return isDark ? 'rgba(129,140,248,0.3)' : 'rgba(99,102,241,0.3)';
-        const intensity = 0.25 + (v / maxDay) * 0.75;
-        return isDark ? 'rgba(129,140,248,' + intensity + ')' : 'rgba(99,102,241,' + intensity + ')';
-      });
-
-      if (dayChart) dayChart.destroy();
-      const dayCtx = document.getElementById('chartDay').getContext('2d');
-      dayChart = new Chart(dayCtx, {
-        type: 'bar',
-        data: {
-          labels: DIAS,
-          datasets: [{
-            data: dayTotals,
-            backgroundColor: dayColors,
-            borderWidth: 0,
-            borderRadius: 6,
-            borderSkipped: false
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          barPercentage: 0.65,
-          categoryPercentage: 0.8,
-          scales: {
-            y: { beginAtZero: true, ticks: { font: { family: 'Inter', size: 11, weight: '500' }, color: secondaryColor }, grid: { color: gridColor }, border: { display: false } },
-            x: { ticks: { font: { family: 'Inter', size: 12, weight: '700' }, color: secondaryColor }, grid: { display: false }, border: { display: false } }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: { backgroundColor: isDark ? '#2c2c2e' : '#1c1c1e', titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' }, cornerRadius: 10, padding: 12,
-              callbacks: { label: function(ctx) { return formatMoney(ctx.raw, 'UYU'); } }
-            }
-          }
+      // ─── 10. Category growth ───
+      const growthList = document.getElementById('catGrowthList');
+      const allCats = new Set([...Object.keys(catTotals), ...Object.keys(prevCatTotals)]);
+      const growthItems = [];
+      allCats.forEach(cat => {
+        const curr = catTotals[cat] || 0;
+        const prev = prevCatTotals[cat] || 0;
+        if (curr === 0) return; // skip categories with no current spend
+        if (prev === 0) {
+          growthItems.push({ cat, curr, prev, pct: null, isNew: true });
+        } else {
+          const pct = ((curr - prev) / prev) * 100;
+          growthItems.push({ cat, curr, prev, pct: Math.round(pct), isNew: false });
         }
       });
+      growthItems.sort((a,b) => {
+        if (a.isNew && !b.isNew) return -1;
+        if (!a.isNew && b.isNew) return 1;
+        return (b.pct||0) - (a.pct||0);
+      });
+      const topGrowth = growthItems.slice(0, 4);
+      if (topGrowth.length === 0) {
+        growthList.innerHTML = '<li class="cat-growth-empty">Sin datos</li>';
+      } else {
+        growthList.innerHTML = topGrowth.map(item => {
+          let pctText, pctClass;
+          if (item.isNew) { pctText = 'Nueva'; pctClass = 'new-cat'; }
+          else if (item.pct > 0) { pctText = '+' + item.pct + '%'; pctClass = 'up'; }
+          else if (item.pct < 0) { pctText = item.pct + '%'; pctClass = 'down'; }
+          else { pctText = '0%'; pctClass = 'new-cat'; }
+          return '<li class="cat-growth-item">' +
+            '<div class="cat-growth-emoji">' + getCatEmoji(item.cat) + '</div>' +
+            '<div class="cat-growth-info">' +
+              '<div class="cat-growth-name">' + item.cat + '</div>' +
+              '<div class="cat-growth-detail">' + formatMoney(item.curr,'UYU') + '</div>' +
+            '</div>' +
+            '<div class="cat-growth-pct ' + pctClass + '">' + pctText + '</div>' +
+          '</li>';
+        }).join('');
+      }
 
-      // Table
+      // ─── 11. USD conversion ───
+      const tc = getTipoCambio();
+      document.getElementById('usdGastos').textContent = 'US$ ' + (totalGastosUYU / tc).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      document.getElementById('usdIngresos').textContent = 'US$ ' + (totalIngresosUYU / tc).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      document.getElementById('usdRate').textContent = 'TC: $' + tc.toFixed(1).replace('.',',');
+
+      // ─── 12. Detail table ───
       const tbody = document.getElementById('summaryTableBody');
       if (labels.length === 0) {
         tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-secondary);padding:24px">Sin datos este mes</td></tr>';
