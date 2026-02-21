@@ -358,11 +358,12 @@
     }
     .card-hero .card-title { color: rgba(255,255,255,0.8); }
     .card-hero * { position: relative; z-index: 1; }
-    .card-hero .summary-item {
+    .card-hero .summary-item,
+    [data-theme="dark"] .card-hero .summary-item {
       background: rgba(0,0,0,0.5);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
     }
     .card-hero .summary-item .label {
       color: rgba(255,255,255,0.85);
