@@ -842,32 +842,32 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-bottom: 2px;
+      margin-bottom: 12px;
     }
     .cards-grid .card { margin-bottom: 0; }
-    .cards-grid .chart-container { max-height: 200px; }
+    .cards-grid .chart-container { max-height: 160px; margin-bottom: 4px; }
 
     /* Ratio gauge */
-    .ratio-gauge { padding: 8px 0; text-align: center; }
+    .ratio-gauge { padding: 0; text-align: center; }
     .ratio-bar-track {
-      height: 12px; border-radius: 6px; background: var(--divider);
-      overflow: hidden; margin: 0 4px;
+      height: 10px; border-radius: 5px; background: var(--divider);
+      overflow: hidden; margin: 0;
     }
     [data-theme="dark"] .ratio-bar-track { background: rgba(255,255,255,0.06); }
     .ratio-bar-fill {
-      height: 100%; border-radius: 6px;
+      height: 100%; border-radius: 5px;
       transition: width 0.8s var(--ease-out);
     }
     .ratio-bar-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
     .ratio-bar-fill.yellow { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
     .ratio-bar-fill.red { background: linear-gradient(90deg, #ef4444, #f87171); }
     .ratio-value {
-      font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;
-      margin-top: 8px; line-height: 1;
+      font-size: 2rem; font-weight: 800; letter-spacing: -1px;
+      line-height: 1;
     }
     .ratio-label {
       font-size: 0.68rem; font-weight: 600; color: var(--text-secondary);
-      margin-top: 4px;
+      margin: 4px 0 8px;
     }
 
     /* Category growth alert */
@@ -891,15 +891,15 @@
     .heatmap-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 3px;
+      gap: 2px;
     }
     .heatmap-header {
-      font-size: 0.62rem; font-weight: 700; color: var(--text-tertiary);
-      text-align: center; padding: 2px 0 6px;
+      font-size: 0.58rem; font-weight: 700; color: var(--text-tertiary);
+      text-align: center; padding: 0 0 3px;
       letter-spacing: 0.3px;
     }
     .heatmap-cell {
-      aspect-ratio: 1; border-radius: 4px;
+      aspect-ratio: 1; border-radius: 3px;
       background: var(--divider);
       position: relative;
     }
@@ -916,18 +916,18 @@
     [data-theme="dark"] .heatmap-cell.lvl4 { background: rgba(129,140,248,0.75); }
     .heatmap-legend {
       display: flex; align-items: center; justify-content: flex-end;
-      gap: 4px; margin-top: 8px;
-      font-size: 0.62rem; color: var(--text-tertiary); font-weight: 600;
+      gap: 3px; margin-top: 6px;
+      font-size: 0.58rem; color: var(--text-tertiary); font-weight: 600;
     }
     .heatmap-legend-cell {
-      width: 12px; height: 12px; border-radius: 3px;
+      width: 10px; height: 10px; border-radius: 2px;
     }
 
     /* USD conversion card */
-    .usd-card-content { text-align: center; padding: 4px 0; }
-    .usd-big { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
-    .usd-sub { font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; font-weight: 500; }
-    .usd-rate { font-size: 0.68rem; color: var(--text-tertiary); margin-top: 6px; font-weight: 600; }
+    .usd-card-content { text-align: center; padding: 0; }
+    .usd-big { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
+    .usd-sub { font-size: 0.68rem; color: var(--text-secondary); margin-top: 1px; font-weight: 500; }
+    .usd-rate { font-size: 0.65rem; color: var(--text-tertiary); margin-top: 8px; font-weight: 600; }
 
     /* TOP 5 GASTOS */
     .top-gastos-list { list-style: none; padding: 0; margin: 0; }
@@ -1468,17 +1468,19 @@
         </div>
       </div>
 
-      <!-- Row 2: Donut + Ratio gauge (side by side) -->
-      <div class="cards-grid">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-header-left">
-              <div class="card-accent" style="background:var(--warning)"></div>
-              <div class="card-title">Por categoría</div>
-            </div>
+      <!-- Row 2: Donut (full width, compact) -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-accent" style="background:var(--warning)"></div>
+            <div class="card-title">Gastos por categoría</div>
           </div>
-          <div class="chart-container"><canvas id="chartPie"></canvas></div>
         </div>
+        <div class="chart-container" style="max-height:220px"><canvas id="chartPie"></canvas></div>
+      </div>
+
+      <!-- Row 3: Ratio + Heatmap (side by side) -->
+      <div class="cards-grid">
         <div class="card">
           <div class="card-header">
             <div class="card-header-left">
@@ -1492,9 +1494,18 @@
             <div class="ratio-bar-track"><div class="ratio-bar-fill green" id="ratioFill" style="width:0%"></div></div>
           </div>
         </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-accent" style="background:var(--primary)"></div>
+              <div class="card-title">Calendario</div>
+            </div>
+          </div>
+          <div id="heatmapContainer"></div>
+        </div>
       </div>
 
-      <!-- Row 3: Trend line (full width) -->
+      <!-- Row 4: Trend line (full width, compact) -->
       <div class="card">
         <div class="card-header">
           <div class="card-header-left">
@@ -1502,10 +1513,10 @@
             <div class="card-title">Gasto acumulado del mes</div>
           </div>
         </div>
-        <div class="chart-container"><canvas id="chartTrend"></canvas></div>
+        <div class="chart-container" style="max-height:200px"><canvas id="chartTrend"></canvas></div>
       </div>
 
-      <!-- Row 4: Top 5 (full width) -->
+      <!-- Row 5: Top 5 gastos -->
       <div class="card">
         <div class="card-header">
           <div class="card-header-left">
@@ -1516,7 +1527,7 @@
         <ul class="top-gastos-list" id="topGastosList"></ul>
       </div>
 
-      <!-- Row 5: Day chart + Heatmap (side by side) -->
+      <!-- Row 6: Day chart + Cat growth (side by side) -->
       <div class="cards-grid">
         <div class="card">
           <div class="card-header">
@@ -1530,15 +1541,15 @@
         <div class="card">
           <div class="card-header">
             <div class="card-header-left">
-              <div class="card-accent" style="background:var(--primary)"></div>
-              <div class="card-title">Heatmap</div>
+              <div class="card-accent" style="background:var(--gasto)"></div>
+              <div class="card-title">vs mes anterior</div>
             </div>
           </div>
-          <div id="heatmapContainer"></div>
+          <ul class="cat-growth-list" id="catGrowthList"></ul>
         </div>
       </div>
 
-      <!-- Row 6: 6 months bar chart (full width) -->
+      <!-- Row 7: 6 months (full width) -->
       <div class="card">
         <div class="card-header">
           <div class="card-header-left">
@@ -1549,17 +1560,8 @@
         <div class="chart-container"><canvas id="chartBar"></canvas></div>
       </div>
 
-      <!-- Row 7: Category growth + USD (side by side) -->
+      <!-- Row 8: USD + Detail table (side by side) -->
       <div class="cards-grid">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-header-left">
-              <div class="card-accent" style="background:var(--gasto)"></div>
-              <div class="card-title">Categorías 🔥</div>
-            </div>
-          </div>
-          <ul class="cat-growth-list" id="catGrowthList"></ul>
-        </div>
         <div class="card">
           <div class="card-header">
             <div class="card-header-left">
@@ -1569,26 +1571,24 @@
           </div>
           <div class="usd-card-content" id="usdCard">
             <div class="usd-big" id="usdGastos">US$ 0</div>
-            <div class="usd-sub">Gastos del mes</div>
-            <div class="usd-big" id="usdIngresos" style="margin-top:12px;color:var(--ingreso)">US$ 0</div>
-            <div class="usd-sub">Ingresos del mes</div>
+            <div class="usd-sub">Gastos</div>
+            <div class="usd-big" id="usdIngresos" style="margin-top:10px;color:var(--ingreso)">US$ 0</div>
+            <div class="usd-sub">Ingresos</div>
             <div class="usd-rate" id="usdRate">TC: $42,5</div>
           </div>
         </div>
-      </div>
-
-      <!-- Row 8: Detail table (full width) -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-header-left">
-            <div class="card-accent" style="background:var(--primary-gradient)"></div>
-            <div class="card-title">Detalle por categoría</div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-accent" style="background:var(--primary-gradient)"></div>
+              <div class="card-title">Por categoría</div>
+            </div>
           </div>
+          <table class="summary-table" id="summaryTable">
+            <thead><tr><th>Cat.</th><th>Total</th></tr></thead>
+            <tbody id="summaryTableBody"></tbody>
+          </table>
         </div>
-        <table class="summary-table" id="summaryTable">
-          <thead><tr><th>Categoría</th><th>Total</th></tr></thead>
-          <tbody id="summaryTableBody"></tbody>
-        </table>
       </div>
     </div>
 
@@ -2003,6 +2003,11 @@
     function getCatColor(n) { const c = categorias.find(x => x.nombre === n); return c ? c.color : '#9E9E9E'; }
     function getTipoCambio() { return parseFloat(config.tipo_cambio_usd) || 42.5; }
     function toUYU(amount, moneda) { return moneda === 'UYU' ? parseFloat(amount) : parseFloat(amount) * getTipoCambio(); }
+    function formatAxisUYU(v) {
+      if (v >= 1000000) return (v/1000000).toFixed(1).replace('.',',') + 'M';
+      if (v >= 1000) return Math.round(v/1000) + 'k';
+      return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
 
     function getDefaultCategorias() {
       return [
@@ -2405,8 +2410,8 @@
           options: {
             responsive: true, maintainAspectRatio: true, cutout: '62%',
             plugins: {
-              legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 10, weight: '600' }, color: secondaryColor, padding: 8, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 } },
-              tooltip: { backgroundColor: tooltipBg, titleFont: { family: 'Inter', weight: '600', size: 11 }, bodyFont: { family: 'Inter', size: 11 }, cornerRadius: 8, padding: 8 }
+              legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12, weight: '500' }, color: secondaryColor, padding: 12, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 } },
+              tooltip: { backgroundColor: tooltipBg, titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' }, cornerRadius: 10, padding: 12, callbacks: { label: function(ctx) { return ctx.label + ': ' + formatMoney(ctx.raw, 'UYU'); } } }
             }
           }
         });
@@ -2482,7 +2487,7 @@
         options: {
           responsive: true, maintainAspectRatio: true,
           scales: {
-            y: { beginAtZero: true, ticks: { font: { family: 'Inter', size: 11, weight: '500' }, color: secondaryColor, callback: function(v) { return v >= 1000 ? Math.round(v/1000)+'k' : v; } }, grid: { color: gridColor }, border: { display: false } },
+            y: { beginAtZero: true, ticks: { font: { family: 'Inter', size: 10, weight: '500' }, color: secondaryColor, callback: function(v) { return formatAxisUYU(v); }, maxTicksLimit: 6 }, grid: { color: gridColor }, border: { display: false } },
             x: { ticks: { font: { family: 'Inter', size: 10, weight: '600' }, color: secondaryColor, maxTicksLimit: 8 }, grid: { display: false }, border: { display: false } }
           },
           plugins: {
@@ -2612,12 +2617,12 @@
         options: {
           responsive: true, maintainAspectRatio: true, barPercentage: 0.7, categoryPercentage: 0.7,
           scales: {
-            y: { beginAtZero: true, ticks: { font: { family: 'Inter', size: 11, weight: '500' }, color: secondaryColor }, grid: { color: gridColor }, border: { display: false } },
+            y: { beginAtZero: true, ticks: { font: { family: 'Inter', size: 10, weight: '500' }, color: secondaryColor, callback: function(v) { return formatAxisUYU(v); }, maxTicksLimit: 6 }, grid: { color: gridColor }, border: { display: false } },
             x: { ticks: { font: { family: 'Inter', size: 12, weight: '600' }, color: secondaryColor }, grid: { display: false }, border: { display: false } }
           },
           plugins: {
             legend: { labels: { font: { family: 'Inter', size: 12, weight: '500' }, color: secondaryColor, usePointStyle: true, pointStyle: 'circle', padding: 14 } },
-            tooltip: { backgroundColor: tooltipBg, titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' }, cornerRadius: 10, padding: 12 }
+            tooltip: { backgroundColor: tooltipBg, titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' }, cornerRadius: 10, padding: 12, callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + formatMoney(ctx.raw, 'UYU'); } } }
           }
         }
       });
@@ -2626,10 +2631,11 @@
       const growthList = document.getElementById('catGrowthList');
       const allCats = new Set([...Object.keys(catTotals), ...Object.keys(prevCatTotals)]);
       const growthItems = [];
+      const hasPrevData = prevTotal > 0;
       allCats.forEach(cat => {
         const curr = catTotals[cat] || 0;
         const prev = prevCatTotals[cat] || 0;
-        if (curr === 0) return; // skip categories with no current spend
+        if (curr === 0) return;
         if (prev === 0) {
           growthItems.push({ cat, curr, prev, pct: null, isNew: true });
         } else {
@@ -2638,20 +2644,32 @@
         }
       });
       growthItems.sort((a,b) => {
-        if (a.isNew && !b.isNew) return -1;
-        if (!a.isNew && b.isNew) return 1;
+        if (a.isNew && !b.isNew) return 1; // real comparisons first
+        if (!a.isNew && b.isNew) return -1;
         return (b.pct||0) - (a.pct||0);
       });
-      const topGrowth = growthItems.slice(0, 4);
+      const topGrowth = growthItems.slice(0, 3);
       if (topGrowth.length === 0) {
         growthList.innerHTML = '<li class="cat-growth-empty">Sin datos</li>';
+      } else if (!hasPrevData) {
+        // No previous month data: just show amounts, no % comparison
+        growthList.innerHTML = topGrowth.map(item => {
+          return '<li class="cat-growth-item">' +
+            '<div class="cat-growth-emoji">' + getCatEmoji(item.cat) + '</div>' +
+            '<div class="cat-growth-info">' +
+              '<div class="cat-growth-name">' + item.cat + '</div>' +
+              '<div class="cat-growth-detail">' + formatMoney(item.curr,'UYU') + '</div>' +
+            '</div>' +
+            '<div class="cat-growth-pct new-cat" style="font-size:0.7rem">—</div>' +
+          '</li>';
+        }).join('') + '<li style="text-align:center;font-size:0.65rem;color:var(--text-tertiary);padding:4px 0">Sin mes anterior para comparar</li>';
       } else {
         growthList.innerHTML = topGrowth.map(item => {
           let pctText, pctClass;
           if (item.isNew) { pctText = 'Nueva'; pctClass = 'new-cat'; }
           else if (item.pct > 0) { pctText = '+' + item.pct + '%'; pctClass = 'up'; }
           else if (item.pct < 0) { pctText = item.pct + '%'; pctClass = 'down'; }
-          else { pctText = '0%'; pctClass = 'new-cat'; }
+          else { pctText = '='; pctClass = 'new-cat'; }
           return '<li class="cat-growth-item">' +
             '<div class="cat-growth-emoji">' + getCatEmoji(item.cat) + '</div>' +
             '<div class="cat-growth-info">' +
