@@ -359,16 +359,18 @@
     .card-hero .card-title { color: rgba(255,255,255,0.8); }
     .card-hero * { position: relative; z-index: 1; }
     .card-hero .summary-item {
-      background: rgba(255,255,255,0.18);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
     .card-hero .summary-item .label {
-      color: rgba(255,255,255,0.9);
+      color: rgba(255,255,255,0.85);
     }
-    .card-hero .summary-item.gastos .amount,
+    .card-hero .summary-item.gastos .amount {
+      color: #ff6b6b;
+    }
     .card-hero .summary-item.ingresos .amount {
-      color: white;
+      color: #51cf66;
     }
 
     /* ============================================ */
@@ -1799,6 +1801,8 @@
       animateNumber('totalIngresos', totalIngresos, 'UYU');
 
       const balance = totalIngresos - totalGastos;
+      const balEl = document.getElementById('totalBalance');
+      balEl.style.color = balance < 0 ? '#ff6b6b' : '#51cf66';
       animateNumber('totalBalance', Math.abs(balance), 'UYU', balance < 0 ? '-' : '+');
 
       renderBudgetBars(movs);
