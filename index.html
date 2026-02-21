@@ -328,51 +328,41 @@
       align-items: center;
     }
 
-    /* Card variants */
-    .card-hero {
+    /* Balance pill */
+    .balance-pill {
       background: var(--primary-gradient);
-      border: none;
-      color: white;
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      text-align: center;
+      margin-bottom: 12px;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 4px 20px var(--primary-glow);
     }
-    .card-hero::before {
+    .balance-pill::before {
       content: '';
       position: absolute;
       top: -50%;
-      right: -30%;
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-    }
-    .card-hero::after {
-      content: '';
-      position: absolute;
-      bottom: -40%;
-      left: -20%;
+      right: -20%;
       width: 160px;
       height: 160px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.08);
     }
-    .card-hero .card-title { color: rgba(255,255,255,0.8); }
-    .card-hero * { position: relative; z-index: 1; }
-    .card-hero .summary-item,
-    [data-theme="dark"] .card-hero .summary-item {
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.1);
+    .balance-pill .balance-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 0.3px;
+      margin-bottom: 4px;
     }
-    .card-hero .summary-item .label {
-      color: rgba(255,255,255,0.85);
-    }
-    .card-hero .summary-item.gastos .amount {
-      color: #ff6b6b;
-    }
-    .card-hero .summary-item.ingresos .amount {
-      color: #51cf66;
+    .balance-pill .balance-amount {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -1px;
+      line-height: 1.2;
+      position: relative;
     }
 
     /* ============================================ */
@@ -451,26 +441,6 @@
     .summary-item.gastos .amount { color: var(--gasto); }
     .summary-item.ingresos .amount { color: var(--ingreso); }
 
-    .summary-balance {
-      text-align: center;
-      padding: 20px 16px;
-    }
-    .card-hero .summary-balance,
-    [data-theme="dark"] .card-hero .summary-balance {
-      background: rgba(0,0,0,0.35);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: var(--radius);
-      border: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 10px;
-    }
-    .summary-balance .label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 2px;
-      letter-spacing: 0.3px;
-    }
     .summary-balance .amount {
       font-size: 2.2rem;
       font-weight: 800;
@@ -1201,11 +1171,11 @@
         <button class="month-today-btn tap-scale" onclick="goToday('inicio')">Hoy</button>
       </div>
 
-      <!-- Hero balance card -->
-      <div class="card card-hero">
-        <div class="card-title">Balance del mes</div>
-        <div class="summary-balance">
-          <div class="amount" id="totalBalance">$0</div>
+      <!-- Balance card -->
+      <div class="card">
+        <div class="balance-pill">
+          <div class="balance-label">Balance del mes</div>
+          <div class="balance-amount" id="totalBalance">$0</div>
         </div>
         <div class="summary-grid">
           <div class="summary-item gastos">
@@ -1813,8 +1783,18 @@
 
       const balance = totalIngresos - totalGastos;
       const balEl = document.getElementById('totalBalance');
-      balEl.style.color = balance < 0 ? '#ff6b6b' : '#51cf66';
+      balEl.style.color = 'white';
       animateNumber('totalBalance', Math.abs(balance), 'UYU', balance < 0 ? '-' : '+');
+      // Update pill glow based on positive/negative
+      const pill = balEl.closest('.balance-pill');
+      if (pill) {
+        pill.style.background = balance < 0
+          ? 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)'
+          : 'var(--primary-gradient)';
+        pill.style.boxShadow = balance < 0
+          ? '0 4px 20px rgba(239,68,68,0.25)'
+          : '0 4px 20px var(--primary-glow)';
+      }
 
       renderBudgetBars(movs);
 
