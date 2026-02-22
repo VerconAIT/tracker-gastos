@@ -517,7 +517,7 @@
     }
     .mov-amount.gasto { color: var(--gasto); }
     .mov-amount.ingreso { color: var(--ingreso); }
-    .mov-date { font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; font-weight: 600; }
+    .mov-date { font-size: 0.7rem; color: var(--text-tertiary); margin-top: 2px; font-weight: 500; }
 
     .mov-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 4px; }
     .mov-edit, .mov-delete {
@@ -782,45 +782,65 @@
     .hist-total-item.gasto { color: var(--gasto); }
     .hist-total-item.ingreso { color: var(--ingreso); }
 
-    /* Date group headers */
-    .date-group-header {
-      position: sticky; top: 0; z-index: 5;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 0 8px; margin-top: 4px;
-      background: var(--card);
-      border-bottom: 1.5px solid var(--divider);
+    /* Day strip */
+    .day-strip { display: flex; gap: 6px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 4px 4px 8px; margin-bottom: 12px; scrollbar-width: none; }
+    .day-strip::-webkit-scrollbar { display: none; }
+    .day-chip {
+      flex: 0 0 auto; scroll-snap-align: center; width: 40px; height: 52px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border-radius: var(--radius-sm); background: var(--card); border: 1.5px solid var(--border);
+      cursor: pointer; transition: all 0.2s var(--ease-out); position: relative;
     }
+    [data-theme="dark"] .day-chip { background: rgba(255,255,255,0.04); border-color: var(--border); }
+    .day-chip-weekday { font-size: 0.6rem; font-weight: 600; color: var(--text-tertiary); letter-spacing: 0.3px; text-transform: uppercase; line-height: 1; }
+    .day-chip-num { font-size: 0.92rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .day-chip.is-today { background: var(--primary-gradient); border-color: transparent; }
+    .day-chip.is-today .day-chip-weekday { color: rgba(255,255,255,0.7); }
+    .day-chip.is-today .day-chip-num { color: white; }
+    .day-chip.selected { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-soft); background: var(--primary-soft); }
+    .day-chip.selected .day-chip-num { color: var(--primary); }
+    .day-chip.is-today.selected { box-shadow: 0 0 0 3px var(--primary-soft); }
+    .day-chip-dot { position: absolute; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--gasto); }
+    .day-chip.is-today .day-chip-dot { background: rgba(255,255,255,0.5); }
+    .day-chip:active { transform: scale(0.93); }
+
+    /* Day view */
+    .day-view-header { text-align: center; padding: 8px 0 4px; margin-bottom: 12px; }
+    .day-view-title { font-size: 1.05rem; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
+    .day-view-back {
+      display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px;
+      border-radius: var(--radius-full); background: var(--primary-soft); color: var(--primary);
+      font-size: 0.72rem; font-weight: 700; margin-top: 8px; cursor: pointer; border: none;
+      transition: all 0.2s var(--ease-out);
+    }
+    .day-view-back:active { transform: scale(0.95); }
+    .day-view-summary { display: flex; gap: 10px; margin-bottom: 12px; }
+    .day-view-stat { flex: 1; text-align: center; padding: 10px 8px; border-radius: var(--radius-sm); background: var(--bg); }
+    [data-theme="dark"] .day-view-stat { background: rgba(255,255,255,0.04); }
+    .day-view-stat .dv-label { font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px; }
+    .day-view-stat .dv-amount { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.3px; }
+    .day-view-stat.gastos .dv-amount { color: var(--gasto); }
+    .day-view-stat.ingresos .dv-amount { color: var(--ingreso); }
+
+    /* Quick filter chips */
+    .quick-filters { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; scrollbar-width: none; }
+    .quick-filters::-webkit-scrollbar { display: none; }
+    .quick-chip {
+      flex: 0 0 auto; padding: 8px 14px; border-radius: var(--radius-full);
+      border: 1.5px solid var(--border-strong); background: var(--card);
+      color: var(--text-secondary); font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s var(--ease-out); white-space: nowrap;
+    }
+    [data-theme="dark"] .quick-chip { background: rgba(255,255,255,0.04); border-color: var(--border); }
+    .quick-chip.active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 700; }
+    .quick-chip:active { transform: scale(0.95); }
+
+    /* Date group headers (Historial) */
+    .date-group-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 0 6px; margin-top: 6px; border-bottom: 1px solid var(--divider); }
     .date-group-header:first-child { margin-top: 0; }
-    .date-group-label { font-size: 0.82rem; font-weight: 700; color: var(--text); letter-spacing: -0.1px; }
+    .date-group-label { font-size: 0.8rem; font-weight: 700; color: var(--text); letter-spacing: -0.1px; }
     .date-group-prefix { color: var(--primary); font-weight: 800; }
-    .date-group-subtotal { font-size: 0.75rem; font-weight: 600; color: var(--gasto); }
-
-    /* Today highlight */
-    .mov-item.is-today { border-left: 3px solid var(--primary); padding-left: 9px; margin-left: -3px; }
-
-    /* Date range filter */
-    .filter-date-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
-    .filter-date-row label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); flex-shrink: 0; }
-    .filter-date-input {
-      flex: 1; min-width: 0; padding: 10px 12px;
-      border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm);
-      font-size: 0.82rem; font-weight: 500; font-family: var(--font);
-      background: var(--card); color: var(--text);
-      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    [data-theme="dark"] .filter-date-input { background-color: rgba(255,255,255,0.04); border-color: var(--border); }
-    .filter-date-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
-    .filter-date-clear {
-      padding: 8px 12px; border-radius: var(--radius-sm);
-      background: var(--divider); color: var(--text-secondary);
-      font-size: 0.72rem; font-weight: 700; flex-shrink: 0; border: none; cursor: pointer;
-    }
-    .filter-date-clear:empty { display: none; }
-
-    /* Today date display in Inicio */
-    .today-date-display { text-align: center; padding: 12px 16px 0; margin-bottom: -4px; }
-    .today-date-text { font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.2px; }
-    .today-date-text .today-day-name { color: var(--primary); font-weight: 700; }
+    .date-group-subtotal { font-size: 0.72rem; font-weight: 600; color: var(--gasto); }
 
     /* ============================================ */
     /* CHARTS                                      */
@@ -1382,8 +1402,10 @@
         <button class="month-today-btn tap-scale" onclick="goToday('inicio')">Hoy</button>
       </div>
 
-      <div class="today-date-display" id="todayDateDisplay"></div>
+      <div class="day-strip" id="dayStrip"></div>
+      <div id="dayViewContent" style="display:none"></div>
 
+      <div id="monthViewContent">
       <!-- Balance card -->
       <div class="card">
         <div class="balance-section">
@@ -1421,6 +1443,7 @@
         </div>
         <div id="recentMovs"><div class="spinner show"></div></div>
       </div>
+      </div><!-- /monthViewContent -->
     </div>
 
     <!-- AGREGAR -->
@@ -1492,12 +1515,10 @@
         <button class="month-today-btn tap-scale" onclick="goToday('hist')">Hoy</button>
       </div>
       <input type="text" class="filter-search" id="filterSearch" placeholder="Buscar por nota o categoría..." oninput="renderHistorial()">
-      <div class="filter-date-row">
-        <label>Desde</label>
-        <input type="date" class="filter-date-input" id="filterDesde" onchange="renderHistorial()">
-        <label>Hasta</label>
-        <input type="date" class="filter-date-input" id="filterHasta" onchange="renderHistorial()">
-        <button class="filter-date-clear" id="btnClearDates" onclick="clearDateFilters()"></button>
+      <div class="quick-filters" id="quickFilters">
+        <button class="quick-chip" onclick="setQuickFilter('hoy')">Hoy</button>
+        <button class="quick-chip" onclick="setQuickFilter('semana')">Última semana</button>
+        <button class="quick-chip" onclick="setQuickFilter('15dias')">Últimos 15 días</button>
       </div>
       <div class="filters">
         <select class="filter-select" id="filterCat" onchange="renderHistorial()"><option value="">Todas las categorías</option></select>
@@ -1886,6 +1907,10 @@
     let toastTimeout = null;
     let tcHistory = [];
 
+    // Day navigation state
+    let selectedDay = null;    // null = month view, "YYYY-MM-DD" = day view
+    let histQuickFilter = '';  // '', 'hoy', 'semana', '15dias'
+
     // ============================================
     // INIT
     // ============================================
@@ -2062,21 +2087,17 @@
     const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
     const DIAS_CORTO = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 
-    function isToday(dateStr) { return cleanDateStr(dateStr) === todayStr(); }
-    function isYesterday(dateStr) {
-      const d = new Date(); d.setDate(d.getDate() - 1);
-      return cleanDateStr(dateStr) === d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    }
     function formatDateGroupHeader(dateStr) {
       const clean = cleanDateStr(dateStr);
       if (!clean) return '';
       const [y,m,d] = clean.split('-').map(Number);
       const dateObj = new Date(y, m-1, d);
-      const dayName = DIAS[dateObj.getDay()];
-      const monthName = MESES[m-1];
-      if (isToday(dateStr)) return 'Hoy · '+dayName+' '+d+' de '+monthName;
-      if (isYesterday(dateStr)) return 'Ayer · '+dayName+' '+d+' de '+monthName;
-      return dayName+' '+d+' de '+monthName;
+      const dayName = DIAS_CORTO[dateObj.getDay()];
+      const td = todayStr();
+      const yd = (function(){ const dt=new Date(); dt.setDate(dt.getDate()-1); return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); })();
+      if (clean === td) return 'Hoy, '+dayName+' '+d;
+      if (clean === yd) return 'Ayer, '+dayName+' '+d;
+      return dayName+' '+d;
     }
     function formatDateShort(dateStr) {
       const clean = cleanDateStr(dateStr);
@@ -2095,25 +2116,27 @@
       document.getElementById('monthLabelAnalisis').textContent = formatMonth(analisisMonth);
     }
 
-    function changeMonth(d) { currentMonth.setMonth(currentMonth.getMonth()+d); updateMonthLabels(); renderInicio(); }
+    function changeMonth(d) { currentMonth.setMonth(currentMonth.getMonth()+d); selectedDay = null; updateMonthLabels(); renderInicio(); }
     function changeMonthHist(d) {
       histMonth.setMonth(histMonth.getMonth()+d);
-      document.getElementById('filterDesde').value = '';
-      document.getElementById('filterHasta').value = '';
+      histQuickFilter = '';
       updateMonthLabels(); renderHistorial();
     }
     function changeMonthAnalisis(d) { analisisMonth.setMonth(analisisMonth.getMonth()+d); updateMonthLabels(); renderAnalisis(); }
 
     function goToday(screen) {
-      if (screen === 'inicio') { currentMonth = new Date(); renderInicio(); }
+      if (screen === 'inicio') {
+        currentMonth = new Date();
+        selectedDay = todayStr();
+        updateMonthLabels(); renderInicio();
+      }
       else if (screen === 'hist') {
         histMonth = new Date();
-        document.getElementById('filterDesde').value = '';
-        document.getElementById('filterHasta').value = '';
-        renderHistorial();
+        histQuickFilter = '';
+        updateMonthLabels(); renderHistorial();
       }
-      else if (screen === 'analisis') { analisisMonth = new Date(); renderAnalisis(); }
-      updateMonthLabels();
+      else if (screen === 'analisis') { analisisMonth = new Date(); updateMonthLabels(); renderAnalisis(); }
+      else { updateMonthLabels(); }
     }
 
     // ============================================
@@ -2210,14 +2233,173 @@
     }
 
     // ============================================
+    // DAY NAVIGATION
+    // ============================================
+    function renderDayStrip() {
+      const container = document.getElementById('dayStrip');
+      if (!container) return;
+
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const td = todayStr();
+      const WEEKDAYS_1 = ['D','L','M','X','J','V','S'];
+
+      // Build set of dates that have movements
+      const movs = getMonthMovimientos(currentMonth);
+      const datesWithMovs = new Set();
+      movs.forEach(m => {
+        const d = cleanDateStr(m.fecha);
+        if (d) datesWithMovs.add(d);
+      });
+
+      let html = '';
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateObj = new Date(year, month, day);
+        const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+        const weekday = WEEKDAYS_1[dateObj.getDay()];
+        const isToday = dateStr === td;
+        const isSelected = dateStr === selectedDay;
+        const hasMov = datesWithMovs.has(dateStr);
+
+        let cls = 'day-chip';
+        if (isToday) cls += ' is-today';
+        if (isSelected) cls += ' selected';
+
+        html += `<div class="${cls}" onclick="selectDay('${dateStr}')">
+          <span class="day-chip-weekday">${weekday}</span>
+          <span class="day-chip-num">${day}</span>
+          ${hasMov ? '<span class="day-chip-dot"></span>' : ''}
+        </div>`;
+      }
+      container.innerHTML = html;
+
+      // Auto-scroll to selected day or today
+      const targetDay = selectedDay || td;
+      const targetDate = new Date(targetDay);
+      if (targetDate.getFullYear() === year && targetDate.getMonth() === month) {
+        const chipIndex = targetDate.getDate() - 1;
+        const chips = container.children;
+        if (chips[chipIndex]) {
+          chips[chipIndex].scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+        }
+      }
+    }
+
+    function selectDay(dateStr) {
+      if (selectedDay === dateStr) {
+        selectedDay = null; // toggle off → back to month view
+      } else {
+        selectedDay = dateStr;
+      }
+      renderInicio();
+    }
+
+    function clearDaySelection() {
+      selectedDay = null;
+      renderInicio();
+    }
+
+    function renderDayView(dateStr) {
+      const container = document.getElementById('dayViewContent');
+      if (!container) return;
+
+      const [y,m,d] = dateStr.split('-').map(Number);
+      const dateObj = new Date(y, m-1, d);
+      const dayName = DIAS[dateObj.getDay()];
+      const monthName = MESES[dateObj.getMonth()];
+
+      // Filter movements for this day
+      const allMovs = getMonthMovimientos(currentMonth);
+      const dayMovs = allMovs.filter(mv => cleanDateStr(mv.fecha) === dateStr);
+
+      let dayGastos = 0, dayIngresos = 0;
+      dayMovs.forEach(mv => {
+        const a = toUYU(mv.monto, mv.moneda);
+        if (mv.tipo === 'gasto') dayGastos += a; else dayIngresos += a;
+      });
+
+      let html = '';
+      // Header
+      html += `<div class="day-view-header">
+        <div class="day-view-title">${dayName} ${d} de ${monthName}</div>
+        <button class="day-view-back" onclick="clearDaySelection()">← Ver todo el mes</button>
+      </div>`;
+
+      // Summary boxes
+      html += `<div class="day-view-summary">
+        <div class="day-view-stat gastos">
+          <div class="dv-label">Gastos</div>
+          <div class="dv-amount">-${formatMoney(dayGastos, 'UYU')}</div>
+        </div>
+        <div class="day-view-stat ingresos">
+          <div class="dv-label">Ingresos</div>
+          <div class="dv-amount">+${formatMoney(dayIngresos, 'UYU')}</div>
+        </div>
+      </div>`;
+
+      // Movements list
+      if (dayMovs.length === 0) {
+        html += `<div class="empty-state">
+          <div class="empty-icon">📝</div>
+          <div class="empty-text">No hay movimientos este día.<br><strong>Tocá + para agregar uno.</strong></div>
+        </div>`;
+      } else {
+        html += '<ul class="mov-list">';
+        dayMovs.forEach((mv, i) => { html += movItemHTML(mv, true, i); });
+        html += '</ul>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Quick filter functions for Historial
+    function setQuickFilter(filter) {
+      if (histQuickFilter === filter) {
+        histQuickFilter = ''; // toggle off
+      } else {
+        histQuickFilter = filter;
+      }
+      renderHistorial();
+    }
+
+    function getQuickFilterDateRange(filter) {
+      const today = new Date();
+      const todayS = todayStr();
+      if (filter === 'hoy') {
+        return { desde: todayS, hasta: todayS };
+      } else if (filter === 'semana') {
+        const d = new Date(today);
+        d.setDate(d.getDate() - 6);
+        const desde = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        return { desde: desde, hasta: todayS };
+      } else if (filter === '15dias') {
+        const d = new Date(today);
+        d.setDate(d.getDate() - 14);
+        const desde = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        return { desde: desde, hasta: todayS };
+      }
+      return null;
+    }
+
+    // ============================================
     // RENDER: INICIO
     // ============================================
     function renderInicio() {
-      // Show today's date prominently
-      const nowD = new Date();
-      const todayDisplay = document.getElementById('todayDateDisplay');
-      if (todayDisplay) {
-        todayDisplay.innerHTML = '<div class="today-date-text"><span class="today-day-name">'+DIAS[nowD.getDay()]+'</span> '+nowD.getDate()+' de '+MESES[nowD.getMonth()]+', '+nowD.getFullYear()+'</div>';
+      // Render day strip always
+      renderDayStrip();
+
+      // Day view vs month view
+      const dayViewEl = document.getElementById('dayViewContent');
+      const monthViewEl = document.getElementById('monthViewContent');
+      if (selectedDay) {
+        dayViewEl.style.display = 'block';
+        monthViewEl.style.display = 'none';
+        renderDayView(selectedDay);
+        return;
+      } else {
+        dayViewEl.style.display = 'none';
+        monthViewEl.style.display = 'block';
       }
 
       const movs = getMonthMovimientos(currentMonth);
@@ -2284,8 +2466,7 @@
           <button class="mov-delete" onclick="confirmDelete('${m.id}')">${deleteIcon}</button>
         </div>` : '';
 
-      const todayClass = isToday(m.fecha) ? ' is-today' : '';
-      return `<li class="mov-item${todayClass}" style="animation-delay:${delay}s">
+      return `<li class="mov-item" style="animation-delay:${delay}s">
         <div class="mov-emoji" style="background:${catColor}18">${emoji}</div>
         <div class="mov-info">
           <div class="mov-cat">${m.categoria||'Sin categoría'}</div>
@@ -2477,28 +2658,34 @@
       sel.value = current;
     }
 
-    function clearDateFilters() {
-      document.getElementById('filterDesde').value = '';
-      document.getElementById('filterHasta').value = '';
-      renderHistorial();
-    }
-
     function renderHistorial() {
+      // Update quick filter chips UI
+      const chips = document.querySelectorAll('#quickFilters .quick-chip');
+      chips.forEach(chip => {
+        const f = chip.getAttribute('onclick').match(/'([^']+)'/);
+        if (f && f[1] === histQuickFilter) chip.classList.add('active');
+        else chip.classList.remove('active');
+      });
+
       let movs = getMonthMovimientos(histMonth);
       const filterCat = document.getElementById('filterCat').value;
       const filterTipo = document.getElementById('filterTipo').value;
       const searchText = document.getElementById('filterSearch').value.trim().toLowerCase();
-      const filterDesde = document.getElementById('filterDesde').value;
-      const filterHasta = document.getElementById('filterHasta').value;
 
       if (filterCat) movs = movs.filter(m => m.categoria === filterCat);
       if (filterTipo) movs = movs.filter(m => m.tipo === filterTipo);
       if (searchText) movs = movs.filter(m => (m.descripcion||'').toLowerCase().includes(searchText) || (m.categoria||'').toLowerCase().includes(searchText));
-      if (filterDesde) movs = movs.filter(m => cleanDateStr(m.fecha) >= filterDesde);
-      if (filterHasta) movs = movs.filter(m => cleanDateStr(m.fecha) <= filterHasta);
 
-      const btnClear = document.getElementById('btnClearDates');
-      if (btnClear) btnClear.textContent = (filterDesde || filterHasta) ? 'Limpiar' : '';
+      // Apply quick filter date range
+      if (histQuickFilter) {
+        const range = getQuickFilterDateRange(histQuickFilter);
+        if (range) {
+          movs = movs.filter(m => {
+            const d = cleanDateStr(m.fecha);
+            return d && d >= range.desde && d <= range.hasta;
+          });
+        }
+      }
 
       movs.sort((a,b) => (cleanDateStr(b.fecha)||'').localeCompare(cleanDateStr(a.fecha)||''));
 
