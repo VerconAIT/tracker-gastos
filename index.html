@@ -887,6 +887,23 @@
     .cat-growth-pct.new-cat { color: var(--primary); }
     .cat-growth-empty { text-align: center; color: var(--text-secondary); padding: 20px 0; font-size: 0.82rem; }
 
+    /* Fijos vs Variables */
+    .fijo-bar { display: flex; height: 28px; border-radius: 8px; overflow: hidden; margin: 12px 0 8px; }
+    .fijo-bar-segment { display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: #fff; transition: width 0.5s ease; min-width: 0; }
+    .fijo-legend { display: flex; gap: 16px; justify-content: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+    .fijo-legend-item { display: flex; align-items: center; gap: 4px; }
+    .fijo-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .fijo-empty { text-align: center; color: var(--text-secondary); padding: 16px 0; font-size: 0.82rem; }
+
+    /* Fijo toggle in settings */
+    .fijo-toggle-list { margin-top: 8px; }
+    .fijo-toggle-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--divider); }
+    .fijo-toggle-item:last-child { border-bottom: none; }
+    .fijo-toggle-label { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+    .fijo-chip { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .fijo-chip.fijo { background: var(--primary); color: #fff; }
+    .fijo-chip.variable { background: var(--divider); color: var(--text-secondary); }
+
     /* Heatmap calendar */
     .heatmap-grid {
       display: grid;
@@ -1597,6 +1614,40 @@
           </table>
         </div>
       </div>
+
+      <!-- Row 9: Fijos vs Variables + TC History -->
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-accent" style="background:var(--primary)"></div>
+              <div class="card-title">Fijos vs Variables</div>
+            </div>
+          </div>
+          <div id="fijoBarContainer"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-accent" style="background:var(--success)"></div>
+              <div class="card-title">Tipo de cambio</div>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="chartTCHistory"></canvas></div>
+          <p id="tcImpactText" style="text-align:center;font-size:0.75rem;color:var(--text-secondary);margin-top:4px"></p>
+        </div>
+      </div>
+
+      <!-- Row 10: Gastos recurrentes -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-accent" style="background:var(--warning)"></div>
+            <div class="card-title">Gastos recurrentes</div>
+          </div>
+        </div>
+        <ul id="recurrentesList" class="cat-growth-list"></ul>
+      </div>
     </div>
 
     <!-- AJUSTES -->
@@ -1659,6 +1710,17 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
           Guardar presupuestos
         </button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-accent" style="background:var(--primary)"></div>
+            <div class="card-title">Gastos fijos / variables</div>
+          </div>
+        </div>
+        <div class="setting-sublabel" style="margin-bottom:8px">Tocá para cambiar el tipo de cada categoría</div>
+        <div id="fijoToggleList" class="fijo-toggle-list"></div>
       </div>
 
       <div class="card">
@@ -1771,7 +1833,9 @@
     let barChart = null;
     let dayChart = null;
     let trendChart = null;
+    let tcSparkChart = null;
     let toastTimeout = null;
+    let tcHistory = [];
 
     // ============================================
     // INIT
@@ -1799,6 +1863,9 @@
 
       const q = localStorage.getItem('offlineQueue');
       if (q) offlineQueue = JSON.parse(q);
+
+      const tcH = localStorage.getItem('cachedTCHistory');
+      if (tcH) tcHistory = JSON.parse(tcH);
 
       if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
     });
@@ -1911,6 +1978,11 @@
         config = JSON.parse(localStorage.getItem('cachedConfig') || '{}');
         if (categorias.length === 0) categorias = getDefaultCategorias();
       }
+      migrateFijoField();
+      if (tcHistory.length === 0 && config.tipo_cambio_usd) {
+        tcHistory.push({fecha: new Date().toISOString().slice(0,10), rate: parseFloat(config.tipo_cambio_usd)});
+        localStorage.setItem('cachedTCHistory', JSON.stringify(tcHistory));
+      }
       renderInicio();
       populateFilterCats();
     }
@@ -2018,22 +2090,38 @@
 
     function getDefaultCategorias() {
       return [
-        {nombre:'Supermercado',emoji:'🛒',color:'#4CAF50',tipo:'gasto'},
-        {nombre:'Farmacia',emoji:'💊',color:'#E91E63',tipo:'gasto'},
-        {nombre:'Médico',emoji:'🏥',color:'#F44336',tipo:'gasto'},
-        {nombre:'Transporte',emoji:'🚌',color:'#FF9800',tipo:'gasto'},
-        {nombre:'Casa y Hogar',emoji:'🏠',color:'#795548',tipo:'gasto'},
-        {nombre:'Servicios',emoji:'⚡',color:'#FFC107',tipo:'gasto'},
-        {nombre:'Ropa',emoji:'👗',color:'#9C27B0',tipo:'gasto'},
-        {nombre:'Comida afuera',emoji:'🍽️',color:'#FF5722',tipo:'gasto'},
-        {nombre:'Entretenimiento',emoji:'🎬',color:'#3F51B5',tipo:'gasto'},
-        {nombre:'Regalos',emoji:'🎁',color:'#E91E63',tipo:'gasto'},
-        {nombre:'Otros',emoji:'📋',color:'#9E9E9E',tipo:'gasto'},
+        {nombre:'Supermercado',emoji:'🛒',color:'#4CAF50',tipo:'gasto',fijo:false},
+        {nombre:'Farmacia',emoji:'💊',color:'#E91E63',tipo:'gasto',fijo:true},
+        {nombre:'Médico',emoji:'🏥',color:'#F44336',tipo:'gasto',fijo:false},
+        {nombre:'Transporte',emoji:'🚌',color:'#FF9800',tipo:'gasto',fijo:false},
+        {nombre:'Casa y Hogar',emoji:'🏠',color:'#795548',tipo:'gasto',fijo:true},
+        {nombre:'Servicios',emoji:'⚡',color:'#FFC107',tipo:'gasto',fijo:true},
+        {nombre:'Ropa',emoji:'👗',color:'#9C27B0',tipo:'gasto',fijo:false},
+        {nombre:'Comida afuera',emoji:'🍽️',color:'#FF5722',tipo:'gasto',fijo:false},
+        {nombre:'Entretenimiento',emoji:'🎬',color:'#3F51B5',tipo:'gasto',fijo:false},
+        {nombre:'Regalos',emoji:'🎁',color:'#E91E63',tipo:'gasto',fijo:false},
+        {nombre:'Otros',emoji:'📋',color:'#9E9E9E',tipo:'gasto',fijo:false},
         {nombre:'Jubilación',emoji:'💰',color:'#4CAF50',tipo:'ingreso'},
         {nombre:'Banco/Intereses',emoji:'🏦',color:'#2196F3',tipo:'ingreso'},
         {nombre:'Regalos recibidos',emoji:'🎁',color:'#E91E63',tipo:'ingreso'},
         {nombre:'Otros ingresos',emoji:'📋',color:'#9E9E9E',tipo:'ingreso'},
       ];
+    }
+
+    function migrateFijoField() {
+      const defaults = {
+        'Supermercado':false,'Farmacia':true,'Médico':false,'Transporte':false,
+        'Casa y Hogar':true,'Servicios':true,'Ropa':false,'Comida afuera':false,
+        'Entretenimiento':false,'Regalos':false,'Otros':false
+      };
+      let changed = false;
+      categorias.forEach(c => {
+        if (c.tipo === 'gasto' && c.fijo === undefined) {
+          c.fijo = defaults[c.nombre] !== undefined ? defaults[c.nombre] : false;
+          changed = true;
+        }
+      });
+      if (changed) localStorage.setItem('cachedCategorias', JSON.stringify(categorias));
     }
 
     // ============================================
@@ -2702,6 +2790,116 @@
         const sorted = labels.map((l,i) => ({label:l,value:values[i]})).sort((a,b) => b.value-a.value);
         tbody.innerHTML = sorted.map(item => '<tr><td>'+getCatEmoji(item.label)+' '+item.label+'</td><td>'+formatMoney(item.value,'UYU')+'</td></tr>').join('');
       }
+
+      // ─── 13. Fijos vs Variables ───
+      const fijoContainer = document.getElementById('fijoBarContainer');
+      if (totalGastosUYU === 0) {
+        fijoContainer.innerHTML = '<div class="fijo-empty">Sin gastos este mes</div>';
+      } else {
+        let totalFijo = 0, totalVariable = 0;
+        gastos.forEach(m => {
+          const cat = categorias.find(c => c.nombre === m.categoria);
+          const amt = toUYU(m.monto, m.moneda);
+          if (cat && cat.fijo) totalFijo += amt; else totalVariable += amt;
+        });
+        const pctFijo = Math.round(totalFijo / totalGastosUYU * 100);
+        const pctVariable = 100 - pctFijo;
+        fijoContainer.innerHTML =
+          '<div class="fijo-bar">' +
+            (pctFijo > 0 ? '<div class="fijo-bar-segment" style="width:'+pctFijo+'%;background:var(--primary)">'+(pctFijo >= 15 ? pctFijo+'%' : '')+'</div>' : '') +
+            (pctVariable > 0 ? '<div class="fijo-bar-segment" style="width:'+pctVariable+'%;background:var(--gasto)">'+(pctVariable >= 15 ? pctVariable+'%' : '')+'</div>' : '') +
+          '</div>' +
+          '<div class="fijo-legend">' +
+            '<div class="fijo-legend-item"><div class="fijo-legend-dot" style="background:var(--primary)"></div>Fijos '+formatMoney(totalFijo,'UYU')+'</div>' +
+            '<div class="fijo-legend-item"><div class="fijo-legend-dot" style="background:var(--gasto)"></div>Variables '+formatMoney(totalVariable,'UYU')+'</div>' +
+          '</div>';
+      }
+
+      // ─── 14. TC Histórico ───
+      const tcImpact = document.getElementById('tcImpactText');
+      if (tcSparkChart) { tcSparkChart.destroy(); tcSparkChart = null; }
+      if (tcHistory.length < 2) {
+        tcImpact.textContent = 'Actualizá el tipo de cambio en Ajustes para ver historial';
+        document.getElementById('chartTCHistory').style.display = 'none';
+      } else {
+        document.getElementById('chartTCHistory').style.display = '';
+        const lastEntries = tcHistory.slice(-10);
+        const tcLabels = lastEntries.map(e => e.fecha.slice(5));
+        const tcValues = lastEntries.map(e => e.rate);
+        const first = tcValues[0], last = tcValues[tcValues.length-1];
+        const pctChange = ((last - first) / first * 100).toFixed(1);
+        if (parseFloat(pctChange) > 0) {
+          tcImpact.innerHTML = '📈 USD subió <strong>+'+pctChange.replace('.',',')+'%</strong> — tus dólares valen más';
+          tcImpact.style.color = 'var(--ingreso)';
+        } else if (parseFloat(pctChange) < 0) {
+          tcImpact.innerHTML = '📉 USD bajó <strong>'+pctChange.replace('.',',')+'%</strong> — tus dólares valen menos';
+          tcImpact.style.color = 'var(--gasto)';
+        } else {
+          tcImpact.textContent = 'Sin cambios en el tipo de cambio';
+          tcImpact.style.color = 'var(--text-secondary)';
+        }
+        tcSparkChart = new Chart(document.getElementById('chartTCHistory'), {
+          type: 'line',
+          data: {
+            labels: tcLabels,
+            datasets: [{
+              data: tcValues,
+              borderColor: 'var(--primary)',
+              backgroundColor: isDark ? 'rgba(129,140,248,0.15)' : 'rgba(99,102,241,0.1)',
+              fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: 'var(--primary)',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false },
+              tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(1).replace('.',',') } }
+            },
+            scales: {
+              x: { display: true, ticks: { font: { size: 9 }, color: secondaryColor, maxRotation: 0 }, grid: { display: false } },
+              y: { display: false }
+            }
+          }
+        });
+      }
+
+      // ─── 15. Gastos Recurrentes ───
+      const recList = document.getElementById('recurrentesList');
+      const m0 = new Date(y, mo, 1);
+      const m1 = new Date(y, mo - 1, 1);
+      const m2 = new Date(y, mo - 2, 1);
+      const movs0 = getMonthMovimientos(m0).filter(m => m.tipo === 'gasto');
+      const movs1 = getMonthMovimientos(m1).filter(m => m.tipo === 'gasto');
+      const movs2 = getMonthMovimientos(m2).filter(m => m.tipo === 'gasto');
+      if (movs1.length === 0 && movs2.length === 0) {
+        recList.innerHTML = '<li class="cat-growth-empty">Se necesitan al menos 3 meses de datos para detectar patrones</li>';
+      } else {
+        const catMonths = {};
+        const addCatData = (arr, idx) => {
+          arr.forEach(m => {
+            if (!catMonths[m.categoria]) catMonths[m.categoria] = [0,0,0];
+            catMonths[m.categoria][idx] += toUYU(m.monto, m.moneda);
+          });
+        };
+        addCatData(movs0, 0); addCatData(movs1, 1); addCatData(movs2, 2);
+        const recurrentes = Object.entries(catMonths)
+          .filter(([,vals]) => vals[0] > 0 && vals[1] > 0 && vals[2] > 0)
+          .map(([cat, vals]) => ({ cat, avg: (vals[0]+vals[1]+vals[2]) / 3 }))
+          .sort((a,b) => b.avg - a.avg)
+          .slice(0, 5);
+        if (recurrentes.length === 0) {
+          recList.innerHTML = '<li class="cat-growth-empty">No se detectaron gastos que se repitan todos los meses</li>';
+        } else {
+          recList.innerHTML = recurrentes.map(r =>
+            '<li class="cat-growth-item">' +
+              '<span class="cat-growth-emoji">'+getCatEmoji(r.cat)+'</span>' +
+              '<div class="cat-growth-info"><div class="cat-growth-name">'+r.cat+'</div>' +
+              '<div class="cat-growth-detail">Presente en los últimos 3 meses</div></div>' +
+              '<span class="cat-growth-pct" style="color:var(--text)">~'+formatMoney(r.avg,'UYU')+'/mes</span>' +
+            '</li>'
+          ).join('');
+        }
+      }
     }
 
     // ============================================
@@ -2721,6 +2919,24 @@
         const val = p ? p.presupuesto_mensual : '';
         return '<div class="budget-edit-item"><span class="be-emoji">'+c.emoji+'</span><span class="be-name">'+c.nombre+'</span><input type="number" data-cat="'+c.nombre+'" value="'+val+'" placeholder="0" inputmode="numeric"></div>';
       }).join('');
+
+      const fijoList = document.getElementById('fijoToggleList');
+      fijoList.innerHTML = gastoCats.map((c, i) => {
+        const isFijo = c.fijo === true;
+        return '<div class="fijo-toggle-item">' +
+          '<div class="fijo-toggle-label">'+c.emoji+' '+c.nombre+'</div>' +
+          '<span class="fijo-chip '+(isFijo ? 'fijo' : 'variable')+'" onclick="toggleFijo(\''+c.nombre+'\')">'+
+          (isFijo ? 'Fijo' : 'Variable')+'</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    function toggleFijo(catName) {
+      const cat = categorias.find(c => c.nombre === catName);
+      if (!cat) return;
+      cat.fijo = !cat.fijo;
+      localStorage.setItem('cachedCategorias', JSON.stringify(categorias));
+      renderAjustes();
     }
 
     function setUser(name) {
@@ -2735,6 +2951,11 @@
       if (!val || val <= 0) return;
       config.tipo_cambio_usd = val;
       localStorage.setItem('cachedConfig', JSON.stringify(config));
+      const today = new Date().toISOString().slice(0,10);
+      const existing = tcHistory.findIndex(e => e.fecha === today);
+      if (existing >= 0) { tcHistory[existing].rate = val; } else { tcHistory.push({fecha: today, rate: val}); }
+      if (tcHistory.length > 30) tcHistory = tcHistory.slice(-30);
+      localStorage.setItem('cachedTCHistory', JSON.stringify(tcHistory));
       try { if (navigator.onLine) await apiPost('updateConfig', { tipo_cambio_usd: val }); showToast('Tipo de cambio actualizado', 'success'); }
       catch (e) { showToast('Error al guardar', 'error'); }
     }
