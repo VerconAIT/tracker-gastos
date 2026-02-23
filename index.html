@@ -783,7 +783,7 @@
     .hist-total-item.ingreso { color: var(--ingreso); }
 
     /* Day strip */
-    .day-strip { display: flex; gap: 6px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 4px 4px 8px; margin-bottom: 12px; scrollbar-width: none; }
+    .day-strip { display: flex; justify-content: center; flex-wrap: nowrap; gap: 6px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 4px 4px 8px; margin-bottom: 12px; scrollbar-width: none; }
     .day-strip::-webkit-scrollbar { display: none; }
     .day-chip {
       flex: 0 0 auto; scroll-snap-align: center; width: 40px; height: 52px;
@@ -815,8 +815,7 @@
     }
     .day-view-back:active { transform: scale(0.95); }
     .day-view-summary { display: flex; gap: 10px; margin-bottom: 12px; }
-    .day-view-stat { flex: 1; text-align: center; padding: 10px 8px; border-radius: var(--radius-sm); background: var(--bg); }
-    [data-theme="dark"] .day-view-stat { background: rgba(255,255,255,0.04); }
+    .day-view-stat { flex: 1; text-align: center; padding: 14px 12px; border-radius: var(--radius-lg); background: var(--card); border: 1px solid var(--border); }
     .day-view-stat .dv-label { font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px; }
     .day-view-stat .dv-amount { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.3px; }
     .day-view-stat.gastos .dv-amount { color: var(--gasto); }
@@ -2320,34 +2319,34 @@
       });
 
       let html = '';
-      // Header
-      html += `<div class="day-view-header">
-        <div class="day-view-title">${dayName} ${d} de ${monthName}</div>
-        <button class="day-view-back" onclick="clearDaySelection()">← Ver todo el mes</button>
+      // Card 1: Header + Summary
+      html += `<div class="card">
+        <div class="day-view-header">
+          <div class="day-view-title">${dayName} ${d} de ${monthName}</div>
+          <button class="day-view-back" onclick="clearDaySelection()">← Ver todo el mes</button>
+        </div>
+        <div class="day-view-summary">
+          <div class="day-view-stat gastos">
+            <div class="dv-label">Gastos</div>
+            <div class="dv-amount">-${formatMoney(dayGastos, 'UYU')}</div>
+          </div>
+          <div class="day-view-stat ingresos">
+            <div class="dv-label">Ingresos</div>
+            <div class="dv-amount">+${formatMoney(dayIngresos, 'UYU')}</div>
+          </div>
+        </div>
       </div>`;
 
-      // Summary boxes
-      html += `<div class="day-view-summary">
-        <div class="day-view-stat gastos">
-          <div class="dv-label">Gastos</div>
-          <div class="dv-amount">-${formatMoney(dayGastos, 'UYU')}</div>
-        </div>
-        <div class="day-view-stat ingresos">
-          <div class="dv-label">Ingresos</div>
-          <div class="dv-amount">+${formatMoney(dayIngresos, 'UYU')}</div>
-        </div>
-      </div>`;
-
-      // Movements list
+      // Card 2: Movements list
       if (dayMovs.length === 0) {
-        html += `<div class="empty-state">
+        html += `<div class="card"><div class="empty-state">
           <div class="empty-icon">📝</div>
           <div class="empty-text">No hay movimientos este día.<br><strong>Tocá + para agregar uno.</strong></div>
-        </div>`;
+        </div></div>`;
       } else {
-        html += '<ul class="mov-list">';
-        dayMovs.forEach((mv, i) => { html += movItemHTML(mv, true, i); });
-        html += '</ul>';
+        html += '<div class="card"><ul class="mov-list">';
+        dayMovs.forEach((mv, i) => { html += movItemHTML(mv, true, i, true); });
+        html += '</ul></div>';
       }
 
       container.innerHTML = html;
@@ -2449,7 +2448,7 @@
       requestAnimationFrame(step);
     }
 
-    function movItemHTML(m, withActions, index = 0) {
+    function movItemHTML(m, withActions, index = 0, hideDate = false) {
       const emoji = getCatEmoji(m.categoria);
       const catColor = getCatColor(m.categoria);
       const isGasto = m.tipo === 'gasto';
@@ -2466,6 +2465,8 @@
           <button class="mov-delete" onclick="confirmDelete('${m.id}')">${deleteIcon}</button>
         </div>` : '';
 
+      const dateHTML = hideDate ? '' : `<div class="mov-date">${formatDateShort(m.fecha)}</div>`;
+
       return `<li class="mov-item" style="animation-delay:${delay}s">
         <div class="mov-emoji" style="background:${catColor}18">${emoji}</div>
         <div class="mov-info">
@@ -2474,7 +2475,7 @@
         </div>
         <div class="mov-right">
           <div class="mov-amount ${cls}">${sign}${formatMoney(m.monto, m.moneda)}</div>
-          <div class="mov-date">${formatDateShort(m.fecha)}</div>
+          ${dateHTML}
         </div>${actions}</li>`;
     }
 
