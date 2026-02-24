@@ -211,9 +211,8 @@
       background: var(--bg-elevated);
       border-top: 1px solid var(--border);
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-around;
-      padding-top: 8px;
       padding-bottom: max(8px, env(safe-area-inset-bottom));
       z-index: 100;
       transition: background 0.4s var(--ease-out);
@@ -257,17 +256,15 @@
     }
 
     .nav-item-add {
-      position: relative;
-      top: -18px;
-      width: 56px;
-      height: 56px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       background: var(--primary-gradient);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 20px var(--primary-glow), 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 12px var(--primary-glow);
       flex: none;
       transition: transform 0.2s var(--ease-spring), box-shadow 0.2s;
     }
@@ -699,6 +696,19 @@
     }
     .btn-save:active { transform: scale(0.98); box-shadow: 0 2px 8px var(--primary-glow); }
     .btn-save:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Form colors by tipo */
+    .form-tipo-gasto .amount-line { background: var(--gasto) !important; }
+    .form-tipo-gasto .amount-hero input { caret-color: var(--gasto); }
+    .form-tipo-gasto .btn-save { background: var(--gasto); box-shadow: 0 4px 16px rgba(239,68,68,0.3); }
+    .form-tipo-gasto .btn-save:active { box-shadow: 0 2px 8px rgba(239,68,68,0.3); }
+    .form-tipo-gasto .card-accent { background: var(--gasto) !important; }
+
+    .form-tipo-ingreso .amount-line { background: var(--ingreso) !important; }
+    .form-tipo-ingreso .amount-hero input { caret-color: var(--ingreso); }
+    .form-tipo-ingreso .btn-save { background: var(--ingreso); box-shadow: 0 4px 16px rgba(16,185,129,0.3); }
+    .form-tipo-ingreso .btn-save:active { box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
+    .form-tipo-ingreso .card-accent { background: var(--ingreso) !important; }
 
     .budget-warning {
       display: none;
@@ -1446,11 +1456,11 @@
     </div>
 
     <!-- AGREGAR -->
-    <div class="screen" id="screenAgregar">
+    <div class="screen form-tipo-gasto" id="screenAgregar">
       <div class="card">
         <div class="card-header">
           <div class="card-header-left">
-            <div class="card-accent" style="background:var(--primary-gradient)"></div>
+            <div class="card-accent"></div>
             <div class="card-title" id="formTitle">Nuevo movimiento</div>
           </div>
         </div>
@@ -2527,6 +2537,9 @@
       formTipo = tipo;
       document.getElementById('btnGasto').className = 'segment-btn'+(tipo==='gasto'?' active-gasto':'');
       document.getElementById('btnIngreso').className = 'segment-btn'+(tipo==='ingreso'?' active-ingreso':'');
+      const screen = document.getElementById('screenAgregar');
+      screen.classList.remove('form-tipo-gasto', 'form-tipo-ingreso');
+      screen.classList.add('form-tipo-' + tipo);
       if (!editingId) formCategoria = '';
       renderCatGrid();
     }
