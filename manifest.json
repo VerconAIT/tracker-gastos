@@ -5,8 +5,8 @@
   "start_url": "/tracker-gastos/",
   "scope": "/tracker-gastos/",
   "display": "standalone",
-  "background_color": "#f2f2f7",
-  "theme_color": "#6366f1",
+  "background_color": "#050505",
+  "theme_color": "#050505",
   "orientation": "portrait",
   "icons": [
     {
