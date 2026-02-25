@@ -1905,6 +1905,10 @@
       .amount-hero input { font-size: 2.2rem; }
       .login-hero h2 { font-size: 1.3rem; }
       .cat-grid { gap: 6px; }
+      .cat-btn { padding: 10px; gap: 8px; }
+      .cat-btn .cat-emoji { font-size: 1.3rem; }
+      .cat-btn .cat-name { font-size: 0.75rem; }
+      .screen .card { padding: 14px; }
       body { font-size: 15px; }
     }
 
@@ -2659,6 +2663,7 @@
     let formMoneda = 'UYU';
     let formCategoria = '';
     let editingId = null;
+    let isSaving = false;
 
     let pieChart = null;
     let barChart = null;
@@ -3153,6 +3158,7 @@
     }
 
     function handleFabClick() {
+      if (isSaving) return;
       const agregarScreen = document.getElementById('screenAgregar');
       if (agregarScreen.classList.contains('active')) {
         // Already on form — try to save
@@ -3826,13 +3832,15 @@
     }
 
     async function guardarMovimiento() {
+      if (isSaving) return;
+      isSaving = true;
       const monto = parseFloat(document.getElementById('inputMonto').value);
       const fecha = document.getElementById('inputFecha').value;
       const desc = document.getElementById('inputDesc').value.trim();
 
-      if (!monto || monto <= 0) { showToast('Ingresá un monto', 'error'); return; }
-      if (!formCategoria) { showToast('Elegí una categoría', 'error'); return; }
-      if (!fecha) { showToast('Elegí una fecha', 'error'); return; }
+      if (!monto || monto <= 0) { showToast('Ingresá un monto', 'error'); isSaving = false; return; }
+      if (!formCategoria) { showToast('Elegí una categoría', 'error'); isSaving = false; return; }
+      if (!fecha) { showToast('Elegí una fecha', 'error'); isSaving = false; return; }
 
       const mov = { fecha, monto, moneda: formMoneda, tipo: formTipo, categoria: formCategoria, descripcion: desc };
 
@@ -3873,6 +3881,7 @@
       } catch (e) {
         showToast('Error: ' + e.message, 'error');
       } finally {
+        isSaving = false;
         btn.disabled = false;
         btn.textContent = 'Guardar';
       }
