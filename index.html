@@ -2738,6 +2738,10 @@
         // No client ID or SDK not loaded — hide Google elements
         if (btnContainer) btnContainer.style.display = 'none';
         if (divider) divider.style.display = 'none';
+        // Si hay client ID pero el SDK no cargó aún, reintentar cuando cargue
+        if (clientId) {
+          window.onGoogleLibraryLoad = function() { initGoogleSignIn(); };
+        }
         return;
       }
 
@@ -2980,7 +2984,6 @@
       sessionStorage.removeItem('sessionToken');
       localStorage.removeItem('currentUser');
       showLoginScreen();
-      showToast('Tu sesión expiró. Ingresá de nuevo.', 'error');
     }
 
 
