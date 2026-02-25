@@ -1584,41 +1584,6 @@
     .empty-state .empty-text strong { color: var(--text); }
 
     /* ============================================ */
-    /* SETUP                                       */
-    /* ============================================ */
-    .setup-screen {
-      display: none;
-      padding: 20px;
-      max-width: 440px;
-      margin: 0 auto;
-    }
-    .setup-screen.active { display: block; }
-    .setup-hero {
-      text-align: center;
-      padding: 48px 0 32px;
-    }
-    .setup-hero .setup-icon {
-      width: 80px; height: 80px;
-      border-radius: var(--radius-lg);
-      background: var(--primary);
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 2.4rem;
-      box-shadow: var(--neon-cyan);
-    }
-    .setup-hero h2 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-bottom: 6px;
-    }
-    .setup-hero p {
-      font-size: 0.88rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
-
-    /* ============================================ */
     /* LOGIN SCREEN                                 */
     /* ============================================ */
     .login-screen {
@@ -1841,25 +1806,6 @@
   </style>
 </head>
 <body>
-
-  <!-- SETUP -->
-  <div class="setup-screen" id="setupScreen">
-    <div class="setup-hero">
-      <div class="setup-icon">💰</div>
-      <h2>Mis Gastos</h2>
-      <p>Para empezar, conectemos con tu base de datos.</p>
-    </div>
-    <div class="form-section">
-      <label class="form-label">URL del Google Apps Script</label>
-      <input type="url" class="form-input" id="setupApiUrl" placeholder="https://script.google.com/macros/s/...">
-    </div>
-    <div class="form-section" style="margin-top:16px">
-      <label class="form-label">Google Client ID <span style="font-weight:400;opacity:0.6">(opcional, para login con Google)</span></label>
-      <input type="text" class="form-input" id="setupGoogleClientId" placeholder="xxxxx.apps.googleusercontent.com">
-    </div>
-    <button class="btn-save" onclick="completeSetup()">Conectar</button>
-    <p style="text-align:center;margin-top:16px;font-size:0.72rem;color:var(--text-tertiary)">Ingresá la URL que te compartieron para conectar tu base de datos.</p>
-  </div>
 
   <!-- LOGIN SCREEN -->
   <div class="login-screen" id="loginScreen">
@@ -2502,7 +2448,6 @@
             <div class="setting-label">API conectada</div>
             <div class="setting-sublabel" id="currentApiUrl" style="word-break:break-all;max-width:200px;font-size:0.6rem;margin-top:4px"></div>
           </div>
-          <button class="btn-secondary tap-scale" style="width:auto;margin:0;padding:10px 16px;font-size:0.78rem" onclick="resetSetup()">Cambiar</button>
         </div>
       </div>
     </div>
@@ -2561,7 +2506,7 @@
     // ============================================
     // STATE
     // ============================================
-    let API_URL = localStorage.getItem('apiUrl') || '';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz4Pv2MVhk_w_D0_jA-tosX6B_5YqPqZAgiUDPmJJt3mmn9IVb_C5CBAWY_pGIBHCuhGA/exec';
     let currentUser = localStorage.getItem('currentUser') || '';
     let sessionToken = localStorage.getItem('sessionToken') || sessionStorage.getItem('sessionToken') || '';
     let currentMonth = new Date();
@@ -2606,14 +2551,7 @@
         localStorage.setItem('cacheV2Migrated', '1');
       }
 
-      if (!API_URL) {
-        document.getElementById('setupScreen').classList.add('active');
-        // Pre-fill Google Client ID if already saved
-        const savedGClientId = localStorage.getItem('googleClientId');
-        if (savedGClientId) {
-          document.getElementById('setupGoogleClientId').value = savedGClientId;
-        }
-      } else if (!sessionToken) {
+      if (!sessionToken) {
         showLoginScreen();
       } else {
         // Validate session with backend
@@ -2662,7 +2600,6 @@
     });
 
     function startApp() {
-      document.getElementById('setupScreen').classList.remove('active');
       document.getElementById('loginScreen').classList.remove('active');
       document.getElementById('mainApp').style.display = '';
       document.getElementById('headerUser').textContent = 'Hola, ' + currentUser + ' 👋';
@@ -2673,7 +2610,6 @@
     }
 
     function showLoginScreen() {
-      document.getElementById('setupScreen').classList.remove('active');
       document.getElementById('mainApp').style.display = 'none';
       document.getElementById('loginScreen').classList.add('active');
       showLoginForm();
@@ -2681,27 +2617,8 @@
     }
 
     // ============================================
-    // SETUP & AUTH
+    // AUTH
     // ============================================
-    function completeSetup() {
-      const url = document.getElementById('setupApiUrl').value.trim();
-      if (!url) { showToast('Ingresá la URL del API', 'error'); return; }
-      API_URL = url;
-      localStorage.setItem('apiUrl', url);
-      // Save Google Client ID if provided
-      const gClientId = (document.getElementById('setupGoogleClientId').value || '').trim();
-      if (gClientId) {
-        localStorage.setItem('googleClientId', gClientId);
-      }
-      showLoginScreen();
-    }
-
-    function resetSetup() {
-      localStorage.removeItem('apiUrl');
-      API_URL = '';
-      location.reload();
-    }
-
     function hideAllLoginForms() {
       document.getElementById('loginForm').style.display = 'none';
       document.getElementById('registerForm').style.display = 'none';
