@@ -36,7 +36,7 @@ function generateSalt() {
   return Utilities.getUuid();
 }
 
-// Busca un usuario en la tabla Usuarios y retorna {row, rowNum, username, password_hash, salt, spreadsheet_id, created_at, session_token}
+// Busca un usuario por username en la tabla Usuarios
 function findUser(username) {
   const sheet = SpreadsheetApp.openById(MASTER_SHEET_ID).getSheetByName(SHEET_USERS);
   if (!sheet) return null;
@@ -50,7 +50,36 @@ function findUser(username) {
         salt: data[i][2],
         spreadsheet_id: data[i][3],
         created_at: data[i][4],
-        session_token: data[i][5]
+        session_token: data[i][5],
+        email: data[i][6] || '',
+        reset_token: data[i][7] || '',
+        reset_expiry: data[i][8] || ''
+      };
+    }
+  }
+  return null;
+}
+
+// Busca un usuario por email en la tabla Usuarios
+function findUserByEmail(email) {
+  if (!email) return null;
+  const sheet = SpreadsheetApp.openById(MASTER_SHEET_ID).getSheetByName(SHEET_USERS);
+  if (!sheet) return null;
+  const data = sheet.getDataRange().getValues();
+  var emailLower = email.toLowerCase().trim();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][6] && data[i][6].toString().toLowerCase().trim() === emailLower) {
+      return {
+        rowNum: i + 1,
+        username: data[i][0],
+        password_hash: data[i][1],
+        salt: data[i][2],
+        spreadsheet_id: data[i][3],
+        created_at: data[i][4],
+        session_token: data[i][5],
+        email: data[i][6] || '',
+        reset_token: data[i][7] || '',
+        reset_expiry: data[i][8] || ''
       };
     }
   }
@@ -144,6 +173,12 @@ function doPost(e) {
     if (action === 'setPassword') {
       return jsonResponse(setPassword(body.data));
     }
+    if (action === 'forgotPassword') {
+      return jsonResponse(forgotPassword(body.data));
+    }
+    if (action === 'resetPassword') {
+      return jsonResponse(resetPassword(body.data));
+    }
 
     // --- Endpoints autenticados ---
     var sess = resolveSession(body.token);
@@ -189,6 +224,7 @@ function doPost(e) {
 function register(data) {
   var username = (data.username || '').trim();
   var password = data.password || '';
+  var email = (data.email || '').trim().toLowerCase();
 
   if (!username || username.length < 2) {
     return { error: 'El nombre debe tener al menos 2 caracteres' };
@@ -196,11 +232,20 @@ function register(data) {
   if (!password || password.length < 4) {
     return { error: 'La contraseña debe tener al menos 4 caracteres' };
   }
+  if (!email || email.indexOf('@') === -1 || email.indexOf('.') === -1) {
+    return { error: 'Ingresá un email válido' };
+  }
 
   // Check if username already exists
   var existing = findUser(username);
   if (existing) {
     return { error: 'Ese nombre de usuario ya existe' };
+  }
+
+  // Check if email already registered
+  var existingEmail = findUserByEmail(email);
+  if (existingEmail) {
+    return { error: 'Ese email ya está registrado' };
   }
 
   // Create user's personal spreadsheet
@@ -215,9 +260,9 @@ function register(data) {
   var hash = hashPassword(password, salt);
   var token = generateToken();
 
-  // Add user to master sheet
+  // Add user to master sheet (9 columns: username, hash, salt, sheet_id, created_at, token, email, reset_token, reset_expiry)
   var usersSheet = SpreadsheetApp.openById(MASTER_SHEET_ID).getSheetByName(SHEET_USERS);
-  usersSheet.appendRow([username, hash, salt, newSheetId, new Date(), token]);
+  usersSheet.appendRow([username, hash, salt, newSheetId, new Date(), token, email, '', '']);
 
   return { ok: true, token: token, username: username };
 }
@@ -277,6 +322,85 @@ function setPassword(data) {
   sheet.getRange(user.rowNum, 2).setValue(hash);    // password_hash
   sheet.getRange(user.rowNum, 3).setValue(salt);     // salt
   sheet.getRange(user.rowNum, 6).setValue(token);    // session_token
+
+  return { ok: true, token: token, username: user.username };
+}
+
+function forgotPassword(data) {
+  var email = (data.email || '').trim().toLowerCase();
+
+  if (!email || email.indexOf('@') === -1) {
+    return { error: 'Ingresá un email válido' };
+  }
+
+  var user = findUserByEmail(email);
+  if (!user) {
+    return { error: 'No hay cuenta con ese email' };
+  }
+
+  if (user.password_hash === 'PENDING') {
+    return { error: 'Tu cuenta aún no tiene contraseña. Usá "Iniciar sesión" con tu usuario.' };
+  }
+
+  // Generate 6-digit code
+  var code = (Math.floor(Math.random() * 900000) + 100000).toString();
+  var expiry = new Date(new Date().getTime() + 15 * 60 * 1000).toISOString(); // 15 minutes
+
+  // Save reset token and expiry
+  var sheet = SpreadsheetApp.openById(MASTER_SHEET_ID).getSheetByName(SHEET_USERS);
+  sheet.getRange(user.rowNum, 8).setValue(code);    // reset_token (col H)
+  sheet.getRange(user.rowNum, 9).setValue(expiry);   // reset_expiry (col I)
+
+  // Send email
+  var subject = 'Código de recuperación - Mis Gastos';
+  var body = 'Hola ' + user.username + ',\n\n'
+    + 'Tu código de recuperación es: ' + code + '\n\n'
+    + 'Expira en 15 minutos.\n\n'
+    + 'Si no solicitaste esto, ignorá este email.';
+
+  MailApp.sendEmail(email, subject, body);
+
+  return { ok: true, message: 'Código enviado a tu email' };
+}
+
+function resetPassword(data) {
+  var email = (data.email || '').trim().toLowerCase();
+  var code = (data.code || '').trim();
+  var password = data.password || '';
+
+  if (!email || !code || !password) {
+    return { error: 'Datos incompletos' };
+  }
+  if (password.length < 4) {
+    return { error: 'La contraseña debe tener al menos 4 caracteres' };
+  }
+
+  var user = findUserByEmail(email);
+  if (!user) {
+    return { error: 'Usuario no encontrado' };
+  }
+
+  // Verify code
+  if (!user.reset_token || user.reset_token.toString() !== code) {
+    return { error: 'Código incorrecto' };
+  }
+
+  // Verify not expired
+  if (!user.reset_expiry || new Date() > new Date(user.reset_expiry)) {
+    return { error: 'El código expiró. Pedí uno nuevo.' };
+  }
+
+  // Set new password
+  var salt = generateSalt();
+  var hash = hashPassword(password, salt);
+  var token = generateToken();
+
+  var sheet = SpreadsheetApp.openById(MASTER_SHEET_ID).getSheetByName(SHEET_USERS);
+  sheet.getRange(user.rowNum, 2).setValue(hash);     // password_hash (col B)
+  sheet.getRange(user.rowNum, 3).setValue(salt);      // salt (col C)
+  sheet.getRange(user.rowNum, 6).setValue(token);     // session_token (col F)
+  sheet.getRange(user.rowNum, 8).setValue('');         // clear reset_token (col H)
+  sheet.getRange(user.rowNum, 9).setValue('');         // clear reset_expiry (col I)
 
   return { ok: true, token: token, username: user.username };
 }
@@ -579,9 +703,26 @@ function setupMasterUsersTab() {
   var sheet = ss.getSheetByName(SHEET_USERS);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_USERS);
-    sheet.getRange(1, 1, 1, 6).setValues([['username', 'password_hash', 'salt', 'spreadsheet_id', 'created_at', 'session_token']]);
+    sheet.getRange(1, 1, 1, 9).setValues([['username', 'password_hash', 'salt', 'spreadsheet_id', 'created_at', 'session_token', 'email', 'reset_token', 'reset_expiry']]);
   }
   return 'Usuarios tab created.';
+}
+
+// Agrega columnas email/reset_token/reset_expiry a tabla Usuarios existente (correr UNA VEZ)
+function addEmailColumnToExistingUsers() {
+  var ss = SpreadsheetApp.openById(MASTER_SHEET_ID);
+  var sheet = ss.getSheetByName(SHEET_USERS);
+  if (!sheet) return 'No Users tab found.';
+
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  if (headers.indexOf('email') === -1) {
+    var nextCol = headers.length + 1;
+    sheet.getRange(1, nextCol).setValue('email');
+    sheet.getRange(1, nextCol + 1).setValue('reset_token');
+    sheet.getRange(1, nextCol + 2).setValue('reset_expiry');
+    return 'Columns email, reset_token, reset_expiry added at column ' + nextCol;
+  }
+  return 'Email column already exists.';
 }
 
 // ============================================
@@ -671,8 +812,8 @@ function migrateExistingData() {
       userCatSheet.getRange(1, 1, catData.length, catData[0].length).setValues(catData);
     }
 
-    // Add user to Users tab with PENDING password
-    usersSheet.appendRow([username, 'PENDING', '', newSheetId, new Date(), '']);
+    // Add user to Users tab with PENDING password (9 cols)
+    usersSheet.appendRow([username, 'PENDING', '', newSheetId, new Date(), '', '', '', '']);
 
     results.push(username + ': ' + movRows.length + ' movimientos migrated -> ' + newSheetId);
   }

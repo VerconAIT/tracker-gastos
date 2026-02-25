@@ -1868,6 +1868,9 @@
       <div class="login-switch">
         ¿No tenés cuenta? <a href="#" onclick="showRegisterForm(); return false;">Crear una</a>
       </div>
+      <div class="login-switch" style="margin-top:8px">
+        <a href="#" onclick="showForgotPasswordForm(); return false;">¿Olvidaste tu contraseña?</a>
+      </div>
     </div>
 
     <!-- REGISTER FORM -->
@@ -1875,6 +1878,10 @@
       <div class="login-field">
         <label class="form-label">Nombre de usuario</label>
         <input type="text" class="form-input" id="regUsername" placeholder="Elegí un nombre" autocapitalize="words" maxlength="30">
+      </div>
+      <div class="login-field">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="regEmail" placeholder="tu@email.com" autocomplete="email">
       </div>
       <div class="login-field">
         <label class="form-label">Contraseña</label>
@@ -1924,6 +1931,51 @@
         </div>
       </div>
       <button class="btn-save login-btn" onclick="doSetPassword()">Guardar contraseña</button>
+    </div>
+
+    <!-- FORGOT PASSWORD FORM -->
+    <div id="forgotPasswordForm" style="display:none">
+      <div class="login-field">
+        <label class="form-label">Email de tu cuenta</label>
+        <input type="email" class="form-input" id="forgotEmail" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <button class="btn-save login-btn" id="forgotBtn" onclick="doForgotPassword()">Enviar código</button>
+      <div class="login-switch">
+        <a href="#" onclick="showLoginForm(); return false;">Volver al login</a>
+      </div>
+    </div>
+
+    <!-- RESET PASSWORD FORM -->
+    <div id="resetPasswordForm" style="display:none">
+      <div class="login-migrate-notice" style="border-color:var(--primary)">
+        Ingresá el código de 6 dígitos que enviamos a tu email.
+      </div>
+      <div class="login-field">
+        <label class="form-label">Código</label>
+        <input type="text" class="form-input" id="resetCode" placeholder="123456" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+      </div>
+      <div class="login-field">
+        <label class="form-label">Nueva contraseña</label>
+        <div class="password-wrapper">
+          <input type="password" class="form-input" id="resetNewPassword" placeholder="Mínimo 4 caracteres">
+          <button class="password-toggle" type="button" onclick="togglePasswordVisibility('resetNewPassword', this)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="login-field">
+        <label class="form-label">Confirmar contraseña</label>
+        <div class="password-wrapper">
+          <input type="password" class="form-input" id="resetNewPasswordConfirm" placeholder="Repetí la contraseña">
+          <button class="password-toggle" type="button" onclick="togglePasswordVisibility('resetNewPasswordConfirm', this)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn-save login-btn" id="resetBtn" onclick="doResetPassword()">Cambiar contraseña</button>
+      <div class="login-switch">
+        <a href="#" onclick="showForgotPasswordForm(); return false;">Reenviar código</a>
+      </div>
     </div>
   </div>
 
@@ -2593,26 +2645,44 @@
       location.reload();
     }
 
-    function showLoginForm() {
-      document.getElementById('loginForm').style.display = '';
+    function hideAllLoginForms() {
+      document.getElementById('loginForm').style.display = 'none';
       document.getElementById('registerForm').style.display = 'none';
       document.getElementById('setPasswordForm').style.display = 'none';
+      document.getElementById('forgotPasswordForm').style.display = 'none';
+      document.getElementById('resetPasswordForm').style.display = 'none';
+    }
+
+    function showLoginForm() {
+      hideAllLoginForms();
+      document.getElementById('loginForm').style.display = '';
       document.getElementById('loginSubtitle').textContent = 'Ingresá a tu cuenta';
     }
 
     function showRegisterForm() {
-      document.getElementById('loginForm').style.display = 'none';
+      hideAllLoginForms();
       document.getElementById('registerForm').style.display = '';
-      document.getElementById('setPasswordForm').style.display = 'none';
       document.getElementById('loginSubtitle').textContent = 'Creá tu cuenta';
     }
 
     function showSetPasswordForm(username) {
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('registerForm').style.display = 'none';
+      hideAllLoginForms();
       document.getElementById('setPasswordForm').style.display = '';
       document.getElementById('loginSubtitle').textContent = 'Hola, ' + username;
       document.getElementById('setPasswordForm').dataset.username = username;
+    }
+
+    function showForgotPasswordForm() {
+      hideAllLoginForms();
+      document.getElementById('forgotPasswordForm').style.display = '';
+      document.getElementById('loginSubtitle').textContent = 'Recuperar contraseña';
+    }
+
+    function showResetPasswordForm(email) {
+      hideAllLoginForms();
+      document.getElementById('resetPasswordForm').style.display = '';
+      document.getElementById('loginSubtitle').textContent = 'Ingresá el código';
+      document.getElementById('resetPasswordForm').dataset.email = email;
     }
 
     function togglePasswordVisibility(inputId, btn) {
@@ -2675,10 +2745,12 @@
 
     async function doRegister() {
       const username = document.getElementById('regUsername').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
       const password = document.getElementById('regPassword').value;
       const confirm = document.getElementById('regPasswordConfirm').value;
 
       if (!username || username.length < 2) { showToast('Nombre: mínimo 2 caracteres', 'error'); return; }
+      if (!email || !email.includes('@') || !email.includes('.')) { showToast('Ingresá un email válido', 'error'); return; }
       if (!password || password.length < 4) { showToast('Contraseña: mínimo 4 caracteres', 'error'); return; }
       if (password !== confirm) { showToast('Las contraseñas no coinciden', 'error'); return; }
 
@@ -2687,7 +2759,7 @@
       btn.textContent = 'Creando cuenta...';
 
       try {
-        const result = await apiPublicPost('register', { username, password });
+        const result = await apiPublicPost('register', { username, password, email });
         if (result.error) { showToast(result.error, 'error'); return; }
 
         sessionToken = result.token;
@@ -2732,6 +2804,62 @@
         showToast('¡Contraseña creada!', 'success');
       } catch (e) {
         showToast('Error de conexión', 'error');
+      }
+    }
+
+    async function doForgotPassword() {
+      const email = document.getElementById('forgotEmail').value.trim();
+      if (!email || !email.includes('@')) { showToast('Ingresá un email válido', 'error'); return; }
+
+      const btn = document.getElementById('forgotBtn');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      try {
+        const result = await apiPublicPost('forgotPassword', { email });
+        if (result.error) { showToast(result.error, 'error'); return; }
+        showToast('¡Código enviado a tu email!', 'success');
+        showResetPasswordForm(email);
+      } catch (e) {
+        showToast('Error de conexión', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Enviar código';
+      }
+    }
+
+    async function doResetPassword() {
+      const email = document.getElementById('resetPasswordForm').dataset.email;
+      const code = document.getElementById('resetCode').value.trim();
+      const password = document.getElementById('resetNewPassword').value;
+      const confirm = document.getElementById('resetNewPasswordConfirm').value;
+
+      if (!code || code.length !== 6) { showToast('Ingresá el código de 6 dígitos', 'error'); return; }
+      if (!password || password.length < 4) { showToast('Contraseña: mínimo 4 caracteres', 'error'); return; }
+      if (password !== confirm) { showToast('Las contraseñas no coinciden', 'error'); return; }
+
+      const btn = document.getElementById('resetBtn');
+      btn.disabled = true;
+      btn.textContent = 'Cambiando...';
+
+      try {
+        const result = await apiPublicPost('resetPassword', { email, code, password });
+        if (result.error) { showToast(result.error, 'error'); return; }
+
+        // Auto-login after reset
+        sessionToken = result.token;
+        currentUser = result.username;
+        localStorage.setItem('sessionToken', sessionToken);
+        localStorage.setItem('currentUser', currentUser);
+        offlineQueue = [];
+        tcHistory = [];
+        startApp();
+        showToast('¡Contraseña actualizada!', 'success');
+      } catch (e) {
+        showToast('Error de conexión', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Cambiar contraseña';
       }
     }
 
