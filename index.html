@@ -2726,10 +2726,11 @@
     // ============================================
     // GOOGLE SIGN-IN
     // ============================================
+    const GOOGLE_CLIENT_ID = '293888593357-8l5l6vd5vaj6o24c1mve7fr6aknpl0r7.apps.googleusercontent.com';
     let googleSignInInitialized = false;
 
     function initGoogleSignIn() {
-      const clientId = localStorage.getItem('googleClientId') || '';
+      const clientId = GOOGLE_CLIENT_ID;
       const btnContainer = document.getElementById('googleSignInBtn');
       const divider = document.getElementById('googleDivider');
 
