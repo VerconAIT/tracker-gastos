@@ -182,6 +182,9 @@ function doPost(e) {
     if (action === 'googleLogin') {
       return jsonResponse(googleLogin(body.data));
     }
+    if (action === 'googleRegister') {
+      return jsonResponse(googleRegister(body.data));
+    }
 
     // --- Endpoints autenticados ---
     var sess = resolveSession(body.token);
@@ -421,43 +424,65 @@ function resetPassword(data) {
   return { ok: true, token: token, username: user.username };
 }
 
-function googleLogin(data) {
-  var credential = data.credential;
+// Validates Google JWT and returns token info
+function validateGoogleCredential(credential) {
   if (!credential) return { error: 'Token de Google requerido' };
-
-  // Validate JWT with Google
   var tokenInfoUrl = 'https://oauth2.googleapis.com/tokeninfo?id_token=' + credential;
   var response = UrlFetchApp.fetch(tokenInfoUrl, { muteHttpExceptions: true });
   var tokenInfo = JSON.parse(response.getContentText());
-
   if (tokenInfo.error || !tokenInfo.email) {
     return { error: 'Token de Google inválido' };
   }
+  return {
+    email: tokenInfo.email.toLowerCase().trim(),
+    name: tokenInfo.name || tokenInfo.email.split('@')[0]
+  };
+}
 
-  var email = tokenInfo.email.toLowerCase().trim();
-  var googleName = tokenInfo.name || email.split('@')[0];
+function googleLogin(data) {
+  var gInfo = validateGoogleCredential(data.credential);
+  if (gInfo.error) return gInfo;
 
-  // Look for existing user by email
-  var user = findUserByEmail(email);
+  var user = findUserByEmail(gInfo.email);
 
-  if (user) {
-    // Existing user — generate new session
-    var token = generateToken();
-    var sheet = SpreadsheetApp.openById(MASTER_SHEET_ID).getSheetByName(SHEET_USERS);
-    sheet.getRange(user.rowNum, 6).setValue(token); // session_token
-    return { ok: true, token: token, username: user.username, isNew: false };
+  if (!user) {
+    // New user — don't auto-create, let them choose username
+    return {
+      needsUsername: true,
+      email: gInfo.email,
+      suggestedName: gInfo.name
+    };
   }
 
-  // New user — auto-register
-  var username = googleName.replace(/[^a-zA-ZáéíóúñÁÉÍÓÚÑ0-9 ]/g, '').trim();
-  if (!username || username.length < 2) username = email.split('@')[0];
+  // Existing user with password account — tell them to use password
+  if (user.password_hash !== 'GOOGLE') {
+    return { error: 'Ya tenés cuenta con ese email. Iniciá sesión con tu contraseña.' };
+  }
 
-  // Ensure username is unique
-  var baseUsername = username;
-  var counter = 1;
-  while (findUser(username)) {
-    username = baseUsername + counter;
-    counter++;
+  // Existing Google user — generate new session
+  var token = generateToken();
+  var sheet = SpreadsheetApp.openById(MASTER_SHEET_ID).getSheetByName(SHEET_USERS);
+  sheet.getRange(user.rowNum, 6).setValue(token);
+  return { ok: true, token: token, username: user.username };
+}
+
+function googleRegister(data) {
+  var gInfo = validateGoogleCredential(data.credential);
+  if (gInfo.error) return gInfo;
+
+  var username = (data.username || '').trim();
+  if (!username || username.length < 2) {
+    return { error: 'El nombre debe tener al menos 2 caracteres' };
+  }
+
+  // Verify username is not taken
+  if (findUser(username)) {
+    return { error: 'Ese nombre de usuario ya existe' };
+  }
+
+  // Verify email not already registered
+  if (findUserByEmail(gInfo.email)) {
+    return { error: 'Ese email ya está registrado' };
   }
 
   // Create user's personal spreadsheet
@@ -467,10 +492,9 @@ function googleLogin(data) {
 
   var token = generateToken();
   var usersSheet = SpreadsheetApp.openById(MASTER_SHEET_ID).getSheetByName(SHEET_USERS);
-  // password_hash = 'GOOGLE' marks OAuth accounts (no local password)
-  usersSheet.appendRow([username, 'GOOGLE', '', newSheetId, new Date(), token, email, '', '']);
+  usersSheet.appendRow([username, 'GOOGLE', '', newSheetId, new Date(), token, gInfo.email, '', '']);
 
-  return { ok: true, token: token, username: username, isNew: true };
+  return { ok: true, token: token, username: username };
 }
 
 // ============================================

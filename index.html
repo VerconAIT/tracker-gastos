@@ -2004,6 +2004,25 @@
         <a href="#" onclick="showForgotPasswordForm(); return false;">Reenviar código</a>
       </div>
     </div>
+
+    <!-- GOOGLE REGISTER FORM (choose username) -->
+    <div id="googleRegisterForm" style="display:none">
+      <div class="login-migrate-notice" style="border-color:var(--primary);color:var(--primary)">
+        Elegí un nombre de usuario para tu cuenta.
+      </div>
+      <div class="login-field">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="googleRegEmail" disabled style="opacity:0.6">
+      </div>
+      <div class="login-field">
+        <label class="form-label">Nombre de usuario</label>
+        <input type="text" class="form-input" id="googleRegUsername" placeholder="Elegí un nombre" autocapitalize="words" maxlength="30">
+      </div>
+      <button class="btn-save login-btn" id="googleRegBtn" onclick="doGoogleRegister()">Crear cuenta</button>
+      <div class="login-switch">
+        <a href="#" onclick="showLoginForm(); return false;">Cancelar</a>
+      </div>
+    </div>
   </div>
 
   <!-- MAIN APP -->
@@ -2689,6 +2708,7 @@
       document.getElementById('setPasswordForm').style.display = 'none';
       document.getElementById('forgotPasswordForm').style.display = 'none';
       document.getElementById('resetPasswordForm').style.display = 'none';
+      document.getElementById('googleRegisterForm').style.display = 'none';
     }
 
     function showLoginForm() {
@@ -2723,6 +2743,17 @@
       document.getElementById('resetPasswordForm').dataset.email = email;
     }
 
+    function showGoogleRegisterForm(email, suggestedName, credential) {
+      hideAllLoginForms();
+      document.getElementById('googleRegisterForm').style.display = '';
+      document.getElementById('loginSubtitle').textContent = 'Completá tu registro';
+      document.getElementById('googleRegEmail').value = email;
+      document.getElementById('googleRegUsername').value = suggestedName;
+      document.getElementById('googleRegisterForm').dataset.credential = credential;
+      // Focus the username field so user can edit it
+      setTimeout(function() { document.getElementById('googleRegUsername').focus(); }, 100);
+    }
+
     // ============================================
     // GOOGLE SIGN-IN
     // ============================================
@@ -2755,6 +2786,7 @@
       google.accounts.id.initialize({
         client_id: clientId,
         callback: handleGoogleCredential,
+        ux_mode: 'popup',
         auto_select: false,
         cancel_on_tap_outside: true
       });
@@ -2773,9 +2805,16 @@
 
       try {
         const result = await apiPublicPost('googleLogin', { credential: response.credential });
+
         if (result.error) { showToast(result.error, 'error'); return; }
 
-        // Auto-login
+        // New user — needs to choose username
+        if (result.needsUsername) {
+          showGoogleRegisterForm(result.email, result.suggestedName, response.credential);
+          return;
+        }
+
+        // Existing Google user — auto-login
         sessionToken = result.token;
         currentUser = result.username;
         localStorage.setItem('sessionToken', sessionToken);
@@ -2783,9 +2822,39 @@
         offlineQueue = [];
         tcHistory = [];
         startApp();
-        showToast(result.isNew ? '¡Cuenta creada con Google!' : '¡Bienvenido!', 'success');
+        showToast('¡Bienvenido!', 'success');
       } catch (e) {
         showToast('Error de conexión', 'error');
+      }
+    }
+
+    async function doGoogleRegister() {
+      const credential = document.getElementById('googleRegisterForm').dataset.credential;
+      const username = document.getElementById('googleRegUsername').value.trim();
+
+      if (!username || username.length < 2) { showToast('Nombre: mínimo 2 caracteres', 'error'); return; }
+
+      const btn = document.getElementById('googleRegBtn');
+      btn.disabled = true;
+      btn.textContent = 'Creando cuenta...';
+
+      try {
+        const result = await apiPublicPost('googleRegister', { credential, username });
+        if (result.error) { showToast(result.error, 'error'); return; }
+
+        sessionToken = result.token;
+        currentUser = result.username;
+        localStorage.setItem('sessionToken', sessionToken);
+        localStorage.setItem('currentUser', currentUser);
+        offlineQueue = [];
+        tcHistory = [];
+        startApp();
+        showToast('¡Cuenta creada con Google!', 'success');
+      } catch (e) {
+        showToast('Error de conexión', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Crear cuenta';
       }
     }
 
