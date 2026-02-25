@@ -3298,11 +3298,23 @@
     }
 
     function formatTodayBtnLabel(monthDate) {
+      // Si hay día seleccionado en el mes actual → mostrar ese día
+      if (selectedDay && isCurrentMonth(monthDate)) {
+        var parts = selectedDay.split('-');
+        var selDate = new Date(+parts[0], +parts[1]-1, +parts[2]);
+        var dayName = DIAS_CORTO[selDate.getDay()];
+        if (selectedDay === todayStr()) {
+          return 'Hoy, ' + dayName + ' ' + selDate.getDate();
+        }
+        return dayName + ' ' + selDate.getDate();
+      }
+      // Sin día seleccionado, mes actual → mostrar hoy
       if (isCurrentMonth(monthDate)) {
         var now = new Date();
-        var dayName = DIAS_CORTO[now.getDay()];
-        return 'Hoy, ' + dayName + ' ' + now.getDate();
+        var dayName2 = DIAS_CORTO[now.getDay()];
+        return 'Hoy, ' + dayName2 + ' ' + now.getDate();
       }
+      // Otro mes → ir al mes actual
       return 'Ir a ' + formatMonth(new Date());
     }
 
@@ -3498,11 +3510,13 @@
       } else {
         selectedDay = dateStr;
       }
+      updateTodayBtn('todayBtnInicio', currentMonth);
       renderInicio();
     }
 
     function clearDaySelection() {
       selectedDay = null;
+      updateTodayBtn('todayBtnInicio', currentMonth);
       renderInicio();
     }
 
