@@ -3297,15 +3297,20 @@
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     }
 
+    function formatTodayBtnLabel(monthDate) {
+      if (isCurrentMonth(monthDate)) {
+        var now = new Date();
+        var dayName = DIAS_CORTO[now.getDay()];
+        return 'Hoy, ' + dayName + ' ' + now.getDate();
+      }
+      return 'Ir a ' + formatMonth(new Date());
+    }
+
     function updateTodayBtn(btnId, monthDate) {
       var btn = document.getElementById(btnId);
       if (!btn) return;
-      if (isCurrentMonth(monthDate)) {
-        btn.style.display = 'none';
-      } else {
-        btn.style.display = '';
-        btn.textContent = 'Ir a ' + formatMonth(new Date());
-      }
+      btn.style.display = '';
+      btn.textContent = formatTodayBtnLabel(monthDate);
     }
 
     function updateMonthLabels() {
