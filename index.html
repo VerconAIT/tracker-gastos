@@ -388,11 +388,17 @@
     /* ============================================ */
     .month-nav {
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 0 4px;
+    }
+    .month-nav-row {
+      display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 16px;
-      padding: 0 4px;
     }
     .month-nav-btn {
       width: 38px;
@@ -419,9 +425,10 @@
       border-radius: var(--radius-full);
       background: var(--primary-soft);
       color: var(--primary);
-      font-size: 0.72rem;
-      font-weight: 700;
+      font-size: 0.75rem;
+      font-weight: 600;
       transition: all 0.2s var(--ease-out);
+      letter-spacing: -0.1px;
     }
 
     /* ============================================ */
@@ -2108,14 +2115,16 @@
     <!-- INICIO -->
     <div class="screen active" id="screenInicio">
       <div class="month-nav">
-        <button class="month-nav-btn tap-scale" onclick="changeMonth(-1)">
-          <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="month-label" id="monthLabel"></span>
-        <button class="month-nav-btn tap-scale" onclick="changeMonth(1)">
-          <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-        <button class="month-today-btn tap-scale" onclick="goToday('inicio')">Hoy</button>
+        <div class="month-nav-row">
+          <button class="month-nav-btn tap-scale" onclick="changeMonth(-1)">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span class="month-label" id="monthLabel"></span>
+          <button class="month-nav-btn tap-scale" onclick="changeMonth(1)">
+            <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <button class="month-today-btn tap-scale" id="todayBtnInicio" onclick="goToday('inicio')">Hoy</button>
       </div>
 
       <div class="day-strip" id="dayStrip"></div>
@@ -2221,14 +2230,16 @@
     <!-- HISTORIAL -->
     <div class="screen" id="screenHistorial">
       <div class="month-nav">
-        <button class="month-nav-btn tap-scale" onclick="changeMonthHist(-1)">
-          <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="month-label" id="monthLabelHist"></span>
-        <button class="month-nav-btn tap-scale" onclick="changeMonthHist(1)">
-          <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-        <button class="month-today-btn tap-scale" onclick="goToday('hist')">Hoy</button>
+        <div class="month-nav-row">
+          <button class="month-nav-btn tap-scale" onclick="changeMonthHist(-1)">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span class="month-label" id="monthLabelHist"></span>
+          <button class="month-nav-btn tap-scale" onclick="changeMonthHist(1)">
+            <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <button class="month-today-btn tap-scale" id="todayBtnHist" onclick="goToday('hist')">Hoy</button>
       </div>
       <input type="text" class="filter-search" id="filterSearch" placeholder="Buscar por nota o categoría..." oninput="renderHistorial()">
       <div class="quick-filters" id="quickFilters">
@@ -2253,14 +2264,16 @@
     <!-- ANÁLISIS -->
     <div class="screen" id="screenAnalisis">
       <div class="month-nav">
-        <button class="month-nav-btn tap-scale" onclick="changeMonthAnalisis(-1)">
-          <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="month-label" id="monthLabelAnalisis"></span>
-        <button class="month-nav-btn tap-scale" onclick="changeMonthAnalisis(1)">
-          <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-        <button class="month-today-btn tap-scale" onclick="goToday('analisis')">Hoy</button>
+        <div class="month-nav-row">
+          <button class="month-nav-btn tap-scale" onclick="changeMonthAnalisis(-1)">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span class="month-label" id="monthLabelAnalisis"></span>
+          <button class="month-nav-btn tap-scale" onclick="changeMonthAnalisis(1)">
+            <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <button class="month-today-btn tap-scale" id="todayBtnAnalisis" onclick="goToday('analisis')">Hoy</button>
       </div>
 
       <!-- Row 1: KPIs -->
@@ -3279,10 +3292,29 @@
     function formatMonth(d) { return MESES[d.getMonth()] + ' ' + d.getFullYear(); }
     function monthKey(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
 
+    function isCurrentMonth(d) {
+      var now = new Date();
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    }
+
+    function updateTodayBtn(btnId, monthDate) {
+      var btn = document.getElementById(btnId);
+      if (!btn) return;
+      if (isCurrentMonth(monthDate)) {
+        btn.style.display = 'none';
+      } else {
+        btn.style.display = '';
+        btn.textContent = 'Ir a ' + formatMonth(new Date());
+      }
+    }
+
     function updateMonthLabels() {
       document.getElementById('monthLabel').textContent = formatMonth(currentMonth);
       document.getElementById('monthLabelHist').textContent = formatMonth(histMonth);
       document.getElementById('monthLabelAnalisis').textContent = formatMonth(analisisMonth);
+      updateTodayBtn('todayBtnInicio', currentMonth);
+      updateTodayBtn('todayBtnHist', histMonth);
+      updateTodayBtn('todayBtnAnalisis', analisisMonth);
     }
 
     function changeMonth(d) { currentMonth.setMonth(currentMonth.getMonth()+d); selectedDay = null; updateMonthLabels(); renderInicio(); }

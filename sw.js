@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gastos-v27';
+const CACHE_NAME = 'gastos-v28';
 const ASSETS = [
   '/tracker-gastos/',
   '/tracker-gastos/index.html',
