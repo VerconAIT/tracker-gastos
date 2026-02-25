@@ -1328,26 +1328,66 @@
     }
     .btn-secondary:active { transform: scale(0.98); background: var(--card-hover); }
 
-    .user-select { display: flex; gap: 8px; }
-    .user-btn {
-      flex: 1;
-      padding: 14px;
+    /* Known users chip list */
+    .known-users-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .known-user-chip {
+      padding: 10px 16px;
       border: 1.5px solid var(--border-strong);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-full);
       background: var(--card);
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       font-weight: 600;
-      text-align: center;
-      transition: all 0.2s var(--ease-out);
       color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out);
+      font-family: var(--font);
     }
-    .user-btn.active {
+    .known-user-chip:active { transform: scale(0.95); }
+    .known-user-chip.active,
+    .known-user-chip:hover {
       border-color: var(--primary);
       background: var(--primary-soft);
       color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-soft);
+      box-shadow: 0 0 0 3px var(--primary-soft), 0 0 15px rgba(0,242,255,0.1);
     }
-    .user-btn:active { transform: scale(0.97); }
+
+    /* Profile display */
+    .profile-display {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 4px 0 8px;
+    }
+    .profile-avatar {
+      width: 48px; height: 48px;
+      border-radius: var(--radius);
+      background: var(--primary-soft);
+      border: 1.5px solid rgba(0,242,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--primary);
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      box-shadow: 0 0 15px rgba(0,242,255,0.1);
+      flex-shrink: 0;
+    }
+    .profile-info { min-width: 0; }
+    .profile-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      font-family: var(--font-display);
+      letter-spacing: -0.3px;
+    }
+    .profile-since {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      font-weight: 500;
+    }
 
 
     /* Budget edit */
@@ -1578,6 +1618,138 @@
     }
 
     /* ============================================ */
+    /* LOGIN SCREEN                                 */
+    /* ============================================ */
+    .login-screen {
+      display: none;
+      padding: 20px;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .login-screen.active { display: block; }
+    .login-hero {
+      text-align: center;
+      padding: 48px 0 28px;
+    }
+    .login-hero .login-logo {
+      width: 72px; height: 72px;
+      border-radius: var(--radius-lg);
+      background: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 2rem;
+      box-shadow: var(--neon-cyan);
+      animation: float-gentle 3s ease-in-out infinite;
+    }
+    .login-hero h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+      font-family: var(--font-display);
+    }
+    .login-hero p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .login-field {
+      margin-bottom: 16px;
+    }
+    .login-field .form-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      font-family: var(--font-display);
+    }
+    .password-wrapper {
+      position: relative;
+    }
+    .password-wrapper .form-input {
+      padding-right: 48px;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      padding: 4px;
+      cursor: pointer;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+    }
+    .password-toggle:hover { color: var(--primary); }
+    .remember-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 16px 0 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .remember-check input { display: none; }
+    .check-box {
+      width: 22px; height: 22px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: 6px;
+      background: var(--card);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s var(--ease-out);
+      flex-shrink: 0;
+    }
+    .remember-check input:checked + .check-box {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 12px rgba(0,242,255,0.25);
+    }
+    .remember-check input:checked + .check-box::after {
+      content: '\2713';
+      color: #050505;
+      font-size: 0.8rem;
+      font-weight: 900;
+    }
+    .login-btn {
+      width: 100%;
+      margin-top: 8px;
+      animation: none !important;
+    }
+    .login-switch {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+    }
+    .login-switch a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .login-switch a:active {
+      text-shadow: 0 0 8px rgba(0,242,255,0.3);
+    }
+    .login-migrate-notice {
+      background: rgba(251,191,36,0.08);
+      border: 1px solid rgba(251,191,36,0.25);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      color: #fbbf24;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* ============================================ */
     /* CYBERPUNK BACKGROUND EFFECTS                 */
     /* ============================================ */
     body::before {
@@ -1660,15 +1832,99 @@
       <label class="form-label">URL del Google Apps Script</label>
       <input type="url" class="form-input" id="setupApiUrl" placeholder="https://script.google.com/macros/s/...">
     </div>
-    <div class="form-section">
-      <label class="form-label">¿Quién sos?</label>
-      <div class="user-select">
-        <button class="user-btn active" onclick="selectSetupUser(this,'Abuela')">👵 Abuela</button>
-        <button class="user-btn" onclick="selectSetupUser(this,'Tiago')">👨 Tiago</button>
+    <button class="btn-save" onclick="completeSetup()">Conectar</button>
+    <p style="text-align:center;margin-top:16px;font-size:0.72rem;color:var(--text-tertiary)">Ingresá la URL que te compartieron para conectar tu base de datos.</p>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-hero">
+      <div class="login-logo">💰</div>
+      <h2>Mis Gastos</h2>
+      <p id="loginSubtitle">Ingresá a tu cuenta</p>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="login-field">
+        <label class="form-label">Usuario</label>
+        <input type="text" class="form-input" id="loginUsername" placeholder="Tu nombre de usuario" autocomplete="username" autocapitalize="none" maxlength="30">
+      </div>
+      <div class="login-field">
+        <label class="form-label">Contraseña</label>
+        <div class="password-wrapper">
+          <input type="password" class="form-input" id="loginPassword" placeholder="Tu contraseña" autocomplete="current-password">
+          <button class="password-toggle" type="button" onclick="togglePasswordVisibility('loginPassword', this)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <label class="remember-check">
+        <input type="checkbox" id="loginRemember" checked>
+        <span class="check-box"></span>
+        <span>Recordarme en este dispositivo</span>
+      </label>
+      <button class="btn-save login-btn" id="loginBtn" onclick="doLogin()">Iniciar sesión</button>
+      <div class="login-switch">
+        ¿No tenés cuenta? <a href="#" onclick="showRegisterForm(); return false;">Crear una</a>
       </div>
     </div>
-    <button class="btn-save" onclick="completeSetup()">Comenzar</button>
-    <p style="text-align:center;margin-top:16px;font-size:0.72rem;color:var(--text-tertiary)">La URL te la da Tiago cuando configura el sistema.</p>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none">
+      <div class="login-field">
+        <label class="form-label">Nombre de usuario</label>
+        <input type="text" class="form-input" id="regUsername" placeholder="Elegí un nombre" autocapitalize="words" maxlength="30">
+      </div>
+      <div class="login-field">
+        <label class="form-label">Contraseña</label>
+        <div class="password-wrapper">
+          <input type="password" class="form-input" id="regPassword" placeholder="Mínimo 4 caracteres" autocomplete="new-password">
+          <button class="password-toggle" type="button" onclick="togglePasswordVisibility('regPassword', this)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="login-field">
+        <label class="form-label">Confirmar contraseña</label>
+        <div class="password-wrapper">
+          <input type="password" class="form-input" id="regPasswordConfirm" placeholder="Repetí la contraseña">
+          <button class="password-toggle" type="button" onclick="togglePasswordVisibility('regPasswordConfirm', this)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn-save login-btn" id="regBtn" onclick="doRegister()">Crear cuenta</button>
+      <div class="login-switch">
+        ¿Ya tenés cuenta? <a href="#" onclick="showLoginForm(); return false;">Iniciá sesión</a>
+      </div>
+    </div>
+
+    <!-- SET PASSWORD FORM (migrated users) -->
+    <div id="setPasswordForm" style="display:none">
+      <div class="login-migrate-notice">
+        Tu cuenta fue migrada. Por seguridad, creá una contraseña para continuar.
+      </div>
+      <div class="login-field">
+        <label class="form-label">Nueva contraseña</label>
+        <div class="password-wrapper">
+          <input type="password" class="form-input" id="setPwdPassword" placeholder="Mínimo 4 caracteres">
+          <button class="password-toggle" type="button" onclick="togglePasswordVisibility('setPwdPassword', this)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="login-field">
+        <label class="form-label">Confirmar contraseña</label>
+        <div class="password-wrapper">
+          <input type="password" class="form-input" id="setPwdConfirm" placeholder="Repetí la contraseña">
+          <button class="password-toggle" type="button" onclick="togglePasswordVisibility('setPwdConfirm', this)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn-save login-btn" onclick="doSetPassword()">Guardar contraseña</button>
+    </div>
   </div>
 
   <!-- MAIN APP -->
@@ -2060,11 +2316,17 @@
             <div class="card-title">Mi perfil</div>
           </div>
         </div>
-        <label class="form-label">¿Quién soy?</label>
-        <div class="user-select">
-          <button class="user-btn" id="settingAbuela" onclick="setUser('Abuela')">👵 Abuela</button>
-          <button class="user-btn" id="settingTiago" onclick="setUser('Tiago')">👨 Tiago</button>
+        <div class="profile-display">
+          <div class="profile-avatar" id="settingsAvatar">👤</div>
+          <div class="profile-info">
+            <div class="profile-name" id="settingsUsername"></div>
+            <div class="profile-since">Sesión activa</div>
+          </div>
         </div>
+        <button class="btn-secondary tap-scale" onclick="logout()" style="margin-top:14px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </button>
       </div>
 
 
@@ -2202,7 +2464,8 @@
     // STATE
     // ============================================
     let API_URL = localStorage.getItem('apiUrl') || '';
-    let currentUser = localStorage.getItem('currentUser') || 'Abuela';
+    let currentUser = localStorage.getItem('currentUser') || '';
+    let sessionToken = localStorage.getItem('sessionToken') || sessionStorage.getItem('sessionToken') || '';
     let currentMonth = new Date();
     let histMonth = new Date();
     let analisisMonth = new Date();
@@ -2233,11 +2496,48 @@
     // ============================================
     // INIT
     // ============================================
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Clean up old localStorage format (one-time migration)
+      if (localStorage.getItem('cachedMovimientos') && !localStorage.getItem('cacheV2Migrated')) {
+        localStorage.removeItem('cachedMovimientos');
+        localStorage.removeItem('cachedCategorias');
+        localStorage.removeItem('cachedPresupuestos');
+        localStorage.removeItem('cachedConfig');
+        localStorage.removeItem('knownUsers');
+        localStorage.removeItem('userAliases');
+        localStorage.setItem('cacheV2Migrated', '1');
+      }
+
       if (!API_URL) {
         document.getElementById('setupScreen').classList.add('active');
+      } else if (!sessionToken) {
+        showLoginScreen();
       } else {
-        startApp();
+        // Validate session with backend
+        try {
+          if (navigator.onLine) {
+            const url = new URL(API_URL);
+            url.searchParams.set('action', 'validateSession');
+            url.searchParams.set('token', sessionToken);
+            const res = await fetch(url.toString());
+            const data = await res.json();
+            if (data.ok) {
+              currentUser = data.username;
+              localStorage.setItem('currentUser', currentUser);
+              startApp();
+            } else {
+              handleSessionExpired();
+            }
+          } else {
+            // Offline — trust localStorage
+            if (currentUser) startApp();
+            else showLoginScreen();
+          }
+        } catch (e) {
+          // Network error — trust localStorage
+          if (currentUser) startApp();
+          else showLoginScreen();
+        }
       }
 
       window.addEventListener('online', () => {
@@ -2249,10 +2549,10 @@
       });
       if (!navigator.onLine) document.getElementById('offlineBadge').classList.add('show');
 
-      const q = localStorage.getItem('offlineQueue');
+      const q = localStorage.getItem('offlineQueue_' + currentUser);
       if (q) offlineQueue = JSON.parse(q);
 
-      const tcH = localStorage.getItem('cachedTCHistory');
+      const tcH = localStorage.getItem('cachedTCHistory_' + currentUser);
       if (tcH) tcHistory = JSON.parse(tcH);
 
       if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -2260,38 +2560,199 @@
 
     function startApp() {
       document.getElementById('setupScreen').classList.remove('active');
+      document.getElementById('loginScreen').classList.remove('active');
       document.getElementById('mainApp').style.display = '';
       document.getElementById('headerUser').textContent = 'Hola, ' + currentUser + ' 👋';
       updateMonthLabels();
       loadAllData();
+      renderAjustes();
       document.getElementById('inputFecha').value = todayStr();
     }
 
-    // ============================================
-    // SETUP
-    // ============================================
-    let setupUser = 'Abuela';
-
-    function selectSetupUser(btn, name) {
-      setupUser = name;
-      document.querySelectorAll('#setupScreen .user-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+    function showLoginScreen() {
+      document.getElementById('setupScreen').classList.remove('active');
+      document.getElementById('mainApp').style.display = 'none';
+      document.getElementById('loginScreen').classList.add('active');
+      showLoginForm();
     }
 
+    // ============================================
+    // SETUP & AUTH
+    // ============================================
     function completeSetup() {
       const url = document.getElementById('setupApiUrl').value.trim();
       if (!url) { showToast('Ingresá la URL del API', 'error'); return; }
       API_URL = url;
       localStorage.setItem('apiUrl', url);
-      localStorage.setItem('currentUser', setupUser);
-      currentUser = setupUser;
-      startApp();
+      showLoginScreen();
     }
 
     function resetSetup() {
       localStorage.removeItem('apiUrl');
       API_URL = '';
       location.reload();
+    }
+
+    function showLoginForm() {
+      document.getElementById('loginForm').style.display = '';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('setPasswordForm').style.display = 'none';
+      document.getElementById('loginSubtitle').textContent = 'Ingresá a tu cuenta';
+    }
+
+    function showRegisterForm() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = '';
+      document.getElementById('setPasswordForm').style.display = 'none';
+      document.getElementById('loginSubtitle').textContent = 'Creá tu cuenta';
+    }
+
+    function showSetPasswordForm(username) {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('setPasswordForm').style.display = '';
+      document.getElementById('loginSubtitle').textContent = 'Hola, ' + username;
+      document.getElementById('setPasswordForm').dataset.username = username;
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.innerHTML = isPassword
+        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    }
+
+    async function doLogin() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const remember = document.getElementById('loginRemember').checked;
+
+      if (!username) { showToast('Ingresá tu usuario', 'error'); return; }
+      if (!password) { showToast('Ingresá tu contraseña', 'error'); return; }
+
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      btn.textContent = 'Ingresando...';
+
+      try {
+        const result = await apiPublicPost('login', { username, password });
+
+        if (result.needsPassword) {
+          showSetPasswordForm(result.username || username);
+          return;
+        }
+        if (result.error) { showToast(result.error, 'error'); return; }
+
+        // Success
+        sessionToken = result.token;
+        currentUser = result.username;
+
+        if (remember) {
+          localStorage.setItem('sessionToken', sessionToken);
+        } else {
+          sessionStorage.setItem('sessionToken', sessionToken);
+        }
+        localStorage.setItem('currentUser', currentUser);
+
+        // Load per-user offline queue
+        const q = localStorage.getItem('offlineQueue_' + currentUser);
+        if (q) offlineQueue = JSON.parse(q);
+        else offlineQueue = [];
+        const tcH = localStorage.getItem('cachedTCHistory_' + currentUser);
+        if (tcH) tcHistory = JSON.parse(tcH);
+        else tcHistory = [];
+
+        startApp();
+      } catch (e) {
+        showToast('Error de conexión', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Iniciar sesión';
+      }
+    }
+
+    async function doRegister() {
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regPasswordConfirm').value;
+
+      if (!username || username.length < 2) { showToast('Nombre: mínimo 2 caracteres', 'error'); return; }
+      if (!password || password.length < 4) { showToast('Contraseña: mínimo 4 caracteres', 'error'); return; }
+      if (password !== confirm) { showToast('Las contraseñas no coinciden', 'error'); return; }
+
+      const btn = document.getElementById('regBtn');
+      btn.disabled = true;
+      btn.textContent = 'Creando cuenta...';
+
+      try {
+        const result = await apiPublicPost('register', { username, password });
+        if (result.error) { showToast(result.error, 'error'); return; }
+
+        sessionToken = result.token;
+        currentUser = result.username;
+        localStorage.setItem('sessionToken', sessionToken);
+        localStorage.setItem('currentUser', currentUser);
+        offlineQueue = [];
+        tcHistory = [];
+        startApp();
+        showToast('¡Cuenta creada!', 'success');
+      } catch (e) {
+        showToast('Error de conexión', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Crear cuenta';
+      }
+    }
+
+    async function doSetPassword() {
+      const username = document.getElementById('setPasswordForm').dataset.username;
+      const password = document.getElementById('setPwdPassword').value;
+      const confirm = document.getElementById('setPwdConfirm').value;
+
+      if (!password || password.length < 4) { showToast('Contraseña: mínimo 4 caracteres', 'error'); return; }
+      if (password !== confirm) { showToast('Las contraseñas no coinciden', 'error'); return; }
+
+      try {
+        const result = await apiPublicPost('setPassword', { username, password });
+        if (result.error) { showToast(result.error, 'error'); return; }
+
+        sessionToken = result.token;
+        currentUser = result.username;
+        localStorage.setItem('sessionToken', sessionToken);
+        localStorage.setItem('currentUser', currentUser);
+
+        // Load per-user offline queue
+        const q = localStorage.getItem('offlineQueue_' + currentUser);
+        if (q) offlineQueue = JSON.parse(q);
+        else offlineQueue = [];
+
+        startApp();
+        showToast('¡Contraseña creada!', 'success');
+      } catch (e) {
+        showToast('Error de conexión', 'error');
+      }
+    }
+
+    function logout() {
+      sessionToken = '';
+      currentUser = '';
+      localStorage.removeItem('sessionToken');
+      sessionStorage.removeItem('sessionToken');
+      localStorage.removeItem('currentUser');
+      document.getElementById('mainApp').style.display = 'none';
+      showLoginScreen();
+    }
+
+    function handleSessionExpired() {
+      sessionToken = '';
+      currentUser = '';
+      localStorage.removeItem('sessionToken');
+      sessionStorage.removeItem('sessionToken');
+      localStorage.removeItem('currentUser');
+      showLoginScreen();
+      showToast('Tu sesión expiró. Ingresá de nuevo.', 'error');
     }
 
 
@@ -2346,12 +2807,33 @@
     async function apiGet(action, params = {}) {
       const url = new URL(API_URL);
       url.searchParams.set('action', action);
+      url.searchParams.set('token', sessionToken);
       for (const k in params) url.searchParams.set(k, params[k]);
       const res = await fetch(url.toString());
-      return res.json();
+      const data = await res.json();
+      if (data && data.error === 'Sesión inválida') {
+        handleSessionExpired();
+        throw new Error('Sesión expirada');
+      }
+      return data;
     }
 
     async function apiPost(action, data) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action, data, token: sessionToken }),
+        redirect: 'follow'
+      });
+      const result = await res.json();
+      if (result && result.error === 'Sesión inválida') {
+        handleSessionExpired();
+        throw new Error('Sesión expirada');
+      }
+      return result;
+    }
+
+    async function apiPublicPost(action, data) {
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
@@ -2371,22 +2853,22 @@
         categorias = Array.isArray(cats) ? cats : getDefaultCategorias();
         presupuestos = Array.isArray(presups) ? presups : [];
         config = conf || {};
-        localStorage.setItem('cachedMovimientos', JSON.stringify(movimientos));
-        localStorage.setItem('cachedCategorias', JSON.stringify(categorias));
-        localStorage.setItem('cachedPresupuestos', JSON.stringify(presupuestos));
-        localStorage.setItem('cachedConfig', JSON.stringify(config));
+        localStorage.setItem('cachedMovimientos_' + currentUser, JSON.stringify(movimientos));
+        localStorage.setItem('cachedCategorias_' + currentUser, JSON.stringify(categorias));
+        localStorage.setItem('cachedPresupuestos_' + currentUser, JSON.stringify(presupuestos));
+        localStorage.setItem('cachedConfig_' + currentUser, JSON.stringify(config));
         if (offlineQueue.length > 0 && navigator.onLine) syncOfflineQueue();
       } catch (e) {
-        movimientos = JSON.parse(localStorage.getItem('cachedMovimientos') || '[]');
-        categorias = JSON.parse(localStorage.getItem('cachedCategorias') || '[]');
-        presupuestos = JSON.parse(localStorage.getItem('cachedPresupuestos') || '[]');
-        config = JSON.parse(localStorage.getItem('cachedConfig') || '{}');
+        movimientos = JSON.parse(localStorage.getItem('cachedMovimientos_' + currentUser) || '[]');
+        categorias = JSON.parse(localStorage.getItem('cachedCategorias_' + currentUser) || '[]');
+        presupuestos = JSON.parse(localStorage.getItem('cachedPresupuestos_' + currentUser) || '[]');
+        config = JSON.parse(localStorage.getItem('cachedConfig_' + currentUser) || '{}');
         if (categorias.length === 0) categorias = getDefaultCategorias();
       }
       migrateFijoField();
       if (tcHistory.length === 0 && config.tipo_cambio_usd) {
         tcHistory.push({fecha: new Date().toISOString().slice(0,10), rate: parseFloat(config.tipo_cambio_usd)});
-        localStorage.setItem('cachedTCHistory', JSON.stringify(tcHistory));
+        localStorage.setItem('cachedTCHistory_' + currentUser, JSON.stringify(tcHistory));
       }
       renderInicio();
       populateFilterCats();
@@ -2404,7 +2886,7 @@
         const result = await apiPost('syncBatch', offlineQueue);
         if (result.ok) {
           offlineQueue = [];
-          localStorage.removeItem('offlineQueue');
+          localStorage.removeItem('offlineQueue_' + currentUser);
           showToast('Sincronizado', 'success');
           await loadAllData();
         }
@@ -2560,7 +3042,7 @@
           changed = true;
         }
       });
-      if (changed) localStorage.setItem('cachedCategorias', JSON.stringify(categorias));
+      if (changed) localStorage.setItem('cachedCategorias_' + currentUser, JSON.stringify(categorias));
     }
 
     // ============================================
@@ -2803,7 +3285,7 @@
         <div class="mov-emoji" style="background:${catColor}18">${emoji}</div>
         <div class="mov-info">
           <div class="mov-cat">${m.categoria||'Sin categoría'}</div>
-          <div class="mov-desc">${m.descripcion||''} ${m.registrado_por ? '· '+m.registrado_por : ''}</div>
+          <div class="mov-desc">${m.descripcion||''}</div>
         </div>
         <div class="mov-right">
           <div class="mov-amount ${cls}">${sign}${formatMoney(m.monto, m.moneda)}</div>
@@ -2945,7 +3427,7 @@
       if (!formCategoria) { showToast('Elegí una categoría', 'error'); return; }
       if (!fecha) { showToast('Elegí una fecha', 'error'); return; }
 
-      const mov = { fecha, monto, moneda: formMoneda, tipo: formTipo, categoria: formCategoria, descripcion: desc, registrado_por: currentUser };
+      const mov = { fecha, monto, moneda: formMoneda, tipo: formTipo, categoria: formCategoria, descripcion: desc };
 
       const btn = document.getElementById('btnGuardar');
       btn.disabled = true;
@@ -2959,11 +3441,11 @@
             if (result.error) throw new Error(result.error);
           } else {
             offlineQueue.push({ action: 'updateMovimiento', data: mov, tempId: editingId });
-            localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+            localStorage.setItem('offlineQueue_' + currentUser, JSON.stringify(offlineQueue));
           }
           const idx = movimientos.findIndex(m => m.id === editingId);
           if (idx !== -1) movimientos[idx] = mov;
-          localStorage.setItem('cachedMovimientos', JSON.stringify(movimientos));
+          localStorage.setItem('cachedMovimientos_' + currentUser, JSON.stringify(movimientos));
           showSuccessOverlay('Actualizado', formTipo);
         } else {
           if (navigator.onLine) {
@@ -2974,10 +3456,10 @@
             const tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
             mov.id = tempId;
             offlineQueue.push({ action: 'addMovimiento', data: mov, tempId });
-            localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+            localStorage.setItem('offlineQueue_' + currentUser, JSON.stringify(offlineQueue));
           }
           movimientos.push(mov);
-          localStorage.setItem('cachedMovimientos', JSON.stringify(movimientos));
+          localStorage.setItem('cachedMovimientos_' + currentUser, JSON.stringify(movimientos));
           showSuccessOverlay(formTipo==='gasto' ? 'Gasto guardado' : 'Ingreso guardado', formTipo);
         }
         editingId = null;
@@ -3087,9 +3569,9 @@
       closeModal();
       try {
         if (navigator.onLine) { await apiPost('deleteMovimiento', { id }); }
-        else { offlineQueue.push({ action:'deleteMovimiento', data:{id}, tempId:id }); localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue)); }
+        else { offlineQueue.push({ action:'deleteMovimiento', data:{id}, tempId:id }); localStorage.setItem('offlineQueue_' + currentUser, JSON.stringify(offlineQueue)); }
         movimientos = movimientos.filter(m => m.id !== id);
-        localStorage.setItem('cachedMovimientos', JSON.stringify(movimientos));
+        localStorage.setItem('cachedMovimientos_' + currentUser, JSON.stringify(movimientos));
         showToast('Eliminado', 'success');
         renderHistorial(); renderInicio();
       } catch (e) { showToast('Error al eliminar', 'error'); }
@@ -3687,8 +4169,11 @@
     // AJUSTES
     // ============================================
     function renderAjustes() {
-      document.getElementById('settingAbuela').className = 'user-btn'+(currentUser==='Abuela'?' active':'');
-      document.getElementById('settingTiago').className = 'user-btn'+(currentUser==='Tiago'?' active':'');
+      // Profile
+      document.getElementById('settingsUsername').textContent = currentUser;
+      const initial = currentUser ? currentUser.charAt(0).toUpperCase() : '👤';
+      document.getElementById('settingsAvatar').textContent = initial;
+
       document.getElementById('inputTipoCambio').value = getTipoCambio();
       document.getElementById('currentApiUrl').textContent = API_URL;
       const container = document.getElementById('budgetEditList');
@@ -3714,14 +4199,7 @@
       const cat = categorias.find(c => c.nombre === catName);
       if (!cat) return;
       cat.fijo = !cat.fijo;
-      localStorage.setItem('cachedCategorias', JSON.stringify(categorias));
-      renderAjustes();
-    }
-
-    function setUser(name) {
-      currentUser = name;
-      localStorage.setItem('currentUser', name);
-      document.getElementById('headerUser').textContent = 'Hola, ' + name + ' 👋';
+      localStorage.setItem('cachedCategorias_' + currentUser, JSON.stringify(categorias));
       renderAjustes();
     }
 
@@ -3729,12 +4207,12 @@
       const val = parseFloat(document.getElementById('inputTipoCambio').value);
       if (!val || val <= 0) return;
       config.tipo_cambio_usd = val;
-      localStorage.setItem('cachedConfig', JSON.stringify(config));
+      localStorage.setItem('cachedConfig_' + currentUser, JSON.stringify(config));
       const today = new Date().toISOString().slice(0,10);
       const existing = tcHistory.findIndex(e => e.fecha === today);
       if (existing >= 0) { tcHistory[existing].rate = val; } else { tcHistory.push({fecha: today, rate: val}); }
       if (tcHistory.length > 30) tcHistory = tcHistory.slice(-30);
-      localStorage.setItem('cachedTCHistory', JSON.stringify(tcHistory));
+      localStorage.setItem('cachedTCHistory_' + currentUser, JSON.stringify(tcHistory));
       try { if (navigator.onLine) await apiPost('updateConfig', { tipo_cambio_usd: val }); showToast('Tipo de cambio actualizado', 'success'); }
       catch (e) { showToast('Error al guardar', 'error'); }
     }
@@ -3744,7 +4222,7 @@
       const newP = [];
       for (const inp of inputs) { const v = parseFloat(inp.value)||0; if (v > 0) newP.push({categoria:inp.dataset.cat, presupuesto_mensual:v, moneda:'UYU'}); }
       presupuestos = newP;
-      localStorage.setItem('cachedPresupuestos', JSON.stringify(presupuestos));
+      localStorage.setItem('cachedPresupuestos_' + currentUser, JSON.stringify(presupuestos));
       try { if (navigator.onLine) for (const p of presupuestos) await apiPost('updatePresupuesto', p); showToast('Presupuestos guardados', 'success'); }
       catch (e) { showToast('Error al guardar', 'error'); }
     }
@@ -3755,7 +4233,7 @@
     function exportExcel() {
       if (typeof XLSX === 'undefined') { showToast('Cargando librería...', 'error'); return; }
       const wb = XLSX.utils.book_new();
-      const movData = movimientos.map(m => ({ 'Fecha':cleanDateStr(m.fecha), 'Monto':parseFloat(m.monto), 'Moneda':m.moneda, 'Tipo':m.tipo, 'Categoría':m.categoria, 'Descripción':m.descripcion, 'Registrado por':m.registrado_por }));
+      const movData = movimientos.map(m => ({ 'Fecha':cleanDateStr(m.fecha), 'Monto':parseFloat(m.monto), 'Moneda':m.moneda, 'Tipo':m.tipo, 'Categoría':m.categoria, 'Descripción':m.descripcion }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(movData), 'Movimientos');
       const confData = Object.entries(config).map(([k,v]) => ({Clave:k,Valor:v}));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(confData), 'Configuración');
