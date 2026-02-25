@@ -179,6 +179,9 @@ function doPost(e) {
     if (action === 'resetPassword') {
       return jsonResponse(resetPassword(body.data));
     }
+    if (action === 'googleLogin') {
+      return jsonResponse(googleLogin(body.data));
+    }
 
     // --- Endpoints autenticados ---
     var sess = resolveSession(body.token);
@@ -268,15 +271,24 @@ function register(data) {
 }
 
 function login(data) {
-  var username = (data.username || '').trim();
+  var identifier = (data.username || '').trim();
   var password = data.password || '';
 
-  if (!username) return { error: 'Ingresá tu usuario' };
+  if (!identifier) return { error: 'Ingresá tu usuario o email' };
   if (!password) return { error: 'Ingresá tu contraseña' };
 
-  var user = findUser(username);
+  // Smart lookup: si tiene @ busca por email, si no por username
+  var user = identifier.indexOf('@') !== -1
+    ? findUserByEmail(identifier)
+    : findUser(identifier);
+
   if (!user) {
     return { error: 'Usuario no encontrado' };
+  }
+
+  // Check if Google-only account
+  if (user.password_hash === 'GOOGLE') {
+    return { error: 'Esta cuenta usa Google. Usá el botón "Iniciar sesión con Google".' };
   }
 
   // Check if migrated user needs to set password
@@ -342,6 +354,10 @@ function forgotPassword(data) {
     return { error: 'Tu cuenta aún no tiene contraseña. Usá "Iniciar sesión" con tu usuario.' };
   }
 
+  if (user.password_hash === 'GOOGLE') {
+    return { error: 'Esta cuenta usa Google. Usá el botón "Iniciar sesión con Google".' };
+  }
+
   // Generate 6-digit code
   var code = (Math.floor(Math.random() * 900000) + 100000).toString();
   var expiry = new Date(new Date().getTime() + 15 * 60 * 1000).toISOString(); // 15 minutes
@@ -403,6 +419,58 @@ function resetPassword(data) {
   sheet.getRange(user.rowNum, 9).setValue('');         // clear reset_expiry (col I)
 
   return { ok: true, token: token, username: user.username };
+}
+
+function googleLogin(data) {
+  var credential = data.credential;
+  if (!credential) return { error: 'Token de Google requerido' };
+
+  // Validate JWT with Google
+  var tokenInfoUrl = 'https://oauth2.googleapis.com/tokeninfo?id_token=' + credential;
+  var response = UrlFetchApp.fetch(tokenInfoUrl, { muteHttpExceptions: true });
+  var tokenInfo = JSON.parse(response.getContentText());
+
+  if (tokenInfo.error || !tokenInfo.email) {
+    return { error: 'Token de Google inválido' };
+  }
+
+  var email = tokenInfo.email.toLowerCase().trim();
+  var googleName = tokenInfo.name || email.split('@')[0];
+
+  // Look for existing user by email
+  var user = findUserByEmail(email);
+
+  if (user) {
+    // Existing user — generate new session
+    var token = generateToken();
+    var sheet = SpreadsheetApp.openById(MASTER_SHEET_ID).getSheetByName(SHEET_USERS);
+    sheet.getRange(user.rowNum, 6).setValue(token); // session_token
+    return { ok: true, token: token, username: user.username, isNew: false };
+  }
+
+  // New user — auto-register
+  var username = googleName.replace(/[^a-zA-ZáéíóúñÁÉÍÓÚÑ0-9 ]/g, '').trim();
+  if (!username || username.length < 2) username = email.split('@')[0];
+
+  // Ensure username is unique
+  var baseUsername = username;
+  var counter = 1;
+  while (findUser(username)) {
+    username = baseUsername + counter;
+    counter++;
+  }
+
+  // Create user's personal spreadsheet
+  var newSS = SpreadsheetApp.create('Gastos - ' + username);
+  var newSheetId = newSS.getId();
+  setupUserSheet(newSS);
+
+  var token = generateToken();
+  var usersSheet = SpreadsheetApp.openById(MASTER_SHEET_ID).getSheetByName(SHEET_USERS);
+  // password_hash = 'GOOGLE' marks OAuth accounts (no local password)
+  usersSheet.appendRow([username, 'GOOGLE', '', newSheetId, new Date(), token, email, '', '']);
+
+  return { ok: true, token: token, username: username, isNew: true };
 }
 
 // ============================================

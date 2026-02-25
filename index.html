@@ -16,6 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     /* ============================================ */
     /* RESET                                       */
@@ -1748,6 +1749,26 @@
       text-align: center;
       line-height: 1.4;
     }
+    .login-divider {
+      text-align: center;
+      margin: 20px 0 16px;
+      position: relative;
+      color: var(--text-tertiary);
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .login-divider::before,
+    .login-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: var(--border);
+    }
+    .login-divider::before { left: 0; }
+    .login-divider::after { right: 0; }
 
     /* ============================================ */
     /* CYBERPUNK BACKGROUND EFFECTS                 */
@@ -1832,6 +1853,10 @@
       <label class="form-label">URL del Google Apps Script</label>
       <input type="url" class="form-input" id="setupApiUrl" placeholder="https://script.google.com/macros/s/...">
     </div>
+    <div class="form-section" style="margin-top:16px">
+      <label class="form-label">Google Client ID <span style="font-weight:400;opacity:0.6">(opcional, para login con Google)</span></label>
+      <input type="text" class="form-input" id="setupGoogleClientId" placeholder="xxxxx.apps.googleusercontent.com">
+    </div>
     <button class="btn-save" onclick="completeSetup()">Conectar</button>
     <p style="text-align:center;margin-top:16px;font-size:0.72rem;color:var(--text-tertiary)">Ingresá la URL que te compartieron para conectar tu base de datos.</p>
   </div>
@@ -1847,8 +1872,8 @@
     <!-- LOGIN FORM -->
     <div id="loginForm">
       <div class="login-field">
-        <label class="form-label">Usuario</label>
-        <input type="text" class="form-input" id="loginUsername" placeholder="Tu nombre de usuario" autocomplete="username" autocapitalize="none" maxlength="30">
+        <label class="form-label">Usuario o email</label>
+        <input type="text" class="form-input" id="loginUsername" placeholder="Usuario o email" autocomplete="username email" autocapitalize="none" maxlength="60">
       </div>
       <div class="login-field">
         <label class="form-label">Contraseña</label>
@@ -1871,6 +1896,8 @@
       <div class="login-switch" style="margin-top:8px">
         <a href="#" onclick="showForgotPasswordForm(); return false;">¿Olvidaste tu contraseña?</a>
       </div>
+      <div class="login-divider" id="googleDivider" style="display:none"><span>o</span></div>
+      <div id="googleSignInBtn" style="display:none; justify-content:center;"></div>
     </div>
 
     <!-- REGISTER FORM -->
@@ -2562,6 +2589,11 @@
 
       if (!API_URL) {
         document.getElementById('setupScreen').classList.add('active');
+        // Pre-fill Google Client ID if already saved
+        const savedGClientId = localStorage.getItem('googleClientId');
+        if (savedGClientId) {
+          document.getElementById('setupGoogleClientId').value = savedGClientId;
+        }
       } else if (!sessionToken) {
         showLoginScreen();
       } else {
@@ -2626,6 +2658,7 @@
       document.getElementById('mainApp').style.display = 'none';
       document.getElementById('loginScreen').classList.add('active');
       showLoginForm();
+      initGoogleSignIn();
     }
 
     // ============================================
@@ -2636,6 +2669,11 @@
       if (!url) { showToast('Ingresá la URL del API', 'error'); return; }
       API_URL = url;
       localStorage.setItem('apiUrl', url);
+      // Save Google Client ID if provided
+      const gClientId = (document.getElementById('setupGoogleClientId').value || '').trim();
+      if (gClientId) {
+        localStorage.setItem('googleClientId', gClientId);
+      }
       showLoginScreen();
     }
 
@@ -2685,6 +2723,67 @@
       document.getElementById('resetPasswordForm').dataset.email = email;
     }
 
+    // ============================================
+    // GOOGLE SIGN-IN
+    // ============================================
+    let googleSignInInitialized = false;
+
+    function initGoogleSignIn() {
+      const clientId = localStorage.getItem('googleClientId') || '';
+      const btnContainer = document.getElementById('googleSignInBtn');
+      const divider = document.getElementById('googleDivider');
+
+      if (!clientId || typeof google === 'undefined' || !google.accounts) {
+        // No client ID or SDK not loaded — hide Google elements
+        if (btnContainer) btnContainer.style.display = 'none';
+        if (divider) divider.style.display = 'none';
+        return;
+      }
+
+      // Show Google elements
+      if (divider) divider.style.display = '';
+      if (btnContainer) btnContainer.style.display = 'flex';
+
+      if (googleSignInInitialized) return;
+      googleSignInInitialized = true;
+
+      google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleGoogleCredential,
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+
+      google.accounts.id.renderButton(
+        btnContainer,
+        { theme: 'filled_black', size: 'large', width: 280, text: 'signin_with', locale: 'es' }
+      );
+    }
+
+    async function handleGoogleCredential(response) {
+      if (!response.credential) {
+        showToast('Error al iniciar sesión con Google', 'error');
+        return;
+      }
+
+      try {
+        const result = await apiPublicPost('googleLogin', { credential: response.credential });
+        if (result.error) { showToast(result.error, 'error'); return; }
+
+        // Auto-login
+        sessionToken = result.token;
+        currentUser = result.username;
+        localStorage.setItem('sessionToken', sessionToken);
+        localStorage.setItem('currentUser', currentUser);
+        offlineQueue = [];
+        tcHistory = [];
+        startApp();
+        showToast(result.isNew ? '¡Cuenta creada con Google!' : '¡Bienvenido!', 'success');
+      } catch (e) {
+        showToast('Error de conexión', 'error');
+      }
+    }
+
     function togglePasswordVisibility(inputId, btn) {
       const input = document.getElementById(inputId);
       const isPassword = input.type === 'password';
@@ -2699,7 +2798,7 @@
       const password = document.getElementById('loginPassword').value;
       const remember = document.getElementById('loginRemember').checked;
 
-      if (!username) { showToast('Ingresá tu usuario', 'error'); return; }
+      if (!username) { showToast('Ingresá tu usuario o email', 'error'); return; }
       if (!password) { showToast('Ingresá tu contraseña', 'error'); return; }
 
       const btn = document.getElementById('loginBtn');
