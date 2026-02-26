@@ -1,19 +1,32 @@
-const CACHE_NAME = 'gastos-v31';
-const ASSETS = [
+const CACHE_NAME = 'gastos-v32';
+
+// Assets locales — DEBEN cachearse para que el SW se instale
+const CRITICAL_ASSETS = [
   '/tracker-gastos/',
   '/tracker-gastos/index.html',
   '/tracker-gastos/manifest.json',
-  'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js',
-  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
-  'https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,900&f[]=satoshi@400,500,600,700&display=swap',
-  'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap'
 ];
 
-// Install - cache assets
+// Assets externos — best-effort, no bloquean instalación
+const EXTERNAL_ASSETS = [
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js',
+  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+  'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap',
+];
+// FontShare REMOVIDO — tiene CORS roto, fonts cargan via <link> tag online
+
+// Install - cache assets (resiliente: externos no bloquean)
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // Críticos: si falla alguno, el SW no se instala (correcto)
+      await cache.addAll(CRITICAL_ASSETS);
+      // Externos: best-effort, si falla uno no rompe todo
+      await Promise.allSettled(
+        EXTERNAL_ASSETS.map((url) =>
+          cache.add(url).catch((err) => console.warn('[SW] Cache skip:', url))
+        )
+      );
     })
   );
   self.skipWaiting();
